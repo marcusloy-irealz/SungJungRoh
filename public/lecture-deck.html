@@ -1,0 +1,2114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 1 · Full End-to-End Building with AI Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body>
+<style id="mb-deck-overrides">
+
+.slide .slide-body { display: flex; flex-direction: column; }
+.slide .slide-body > .bm-callout { margin-top: auto; }
+
+.mb-btn { font: inherit; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 4px;
+          border: 1px solid #1B3556; background: #1B3556; color: #fff; cursor: pointer; }
+.mb-btn:hover { background: #2C5282; border-color: #2C5282; }
+.mb-btn.mb-btn-quiet { background: #fff; color: #1B3556; }
+.mb-btn.mb-btn-quiet:hover { background: #f3f6f9; }
+.mb-btn.mb-btn-danger { background: #b53a4a; border-color: #b53a4a; }
+.mb-btn.mb-btn-danger:hover { background: #9c2f3d; border-color: #9c2f3d; }
+
+.slide pre.bm-code { font-size: 10.5px; line-height: 1.44; }
+.slide .prompt-wrap { position: relative; }
+.slide .prompt-wrap pre.prompt { padding-right: 58px; white-space: pre-wrap; word-break: break-word; }
+.slide .copybtn { position: absolute; top: 9px; right: 8px; font: inherit; font-size: 10px; font-weight: 700;
+                  letter-spacing: 0.3px; padding: 2px 8px; border-radius: 3px; border: 1px solid #2B7A9B;
+                  background: #fff; color: #2B7A9B; cursor: pointer; }
+.slide .copybtn:hover { background: #2B7A9B; color: #fff; }
+.slide .copybtn.done { background: #107850; border-color: #107850; color: #fff; }
+.slide .copybtn.fail { background: #b53a4a; border-color: #b53a4a; color: #fff; }
+
+.ui-pair { display: flex; gap: 14px; align-items: stretch; }
+.ui-pair .ui-fig { flex: 1.35; min-width: 0; }
+.ui-pair .ui-fig svg { width: 100%; height: auto; display: block; }
+.ui-pair .ui-legend { flex: 1; min-width: 0; }
+.ui-legend ol { list-style: none; margin: 0; padding: 0; counter-reset: uis; }
+.ui-legend ol li { counter-increment: uis; position: relative; padding: 3px 0 3px 26px; font-size: 11px;
+                   line-height: 1.4; border-bottom: 1px dashed #e3e8ee; }
+.ui-legend ol li:last-child { border-bottom: none; }
+.ui-legend ol li::before { content: counter(uis); position: absolute; left: 0; top: 4px; width: 18px; height: 18px;
+  border-radius: 50%; background: #b53a4a; color: #fff; font-size: 10px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; }
+.ui-legend ol li code { font-size: 10px; }
+.lbl { display: inline-block; background: #1B3556; color: #fff; font-size: 10px; font-weight: 700;
+       padding: 0 6px; border-radius: 3px; letter-spacing: 0.2px; white-space: nowrap; }
+.kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #fff; color: #1B3556;
+       border: 1px solid #b9c1ca; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+
+.chain { display: flex; align-items: stretch; gap: 8px; margin: 8px 0; }
+.chain .cs { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px;
+  border: 1px solid #CBD5E0; border-top: 3px solid #b53a4a; border-radius: 5px; padding: 7px 11px;
+  font-weight: 700; font-size: 12.5px; color: #1A202C; background: #fff; }
+.chain .cs em { font-style: normal; font-family: 'Computer Modern Sans','Open Sans',sans-serif;
+  font-size: 22px; font-weight: 800; line-height: 1; color: #b53a4a; }
+.chain .cs small { display: block; font-size: 10px; font-weight: 400; color: #7b838d; }
+.chain .carrow { align-self: center; color: #b6bec7; font-size: 16px; flex: none; }
+
+.chip { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+        padding: 1px 7px; border-radius: 9px; background: #e8f1f5; color: #1a5e7f; }
+.chip.red { background: #f8e0e4; color: #b53a4a; }
+.chip.green { background: #e6f3ec; color: #107850; }
+.chip.gold { background: #fbf3ce; color: #8a6a10; }
+.chip.grey { background: #eef1f4; color: #5b6470; }
+
+.pair2 { display: flex; gap: 12px; }
+.pair2 > div { flex: 1; min-width: 0; border-radius: 4px; padding: 8px 11px; font-size: 11.5px; }
+.pair2 .bad { background: #fbf0f1; border: 1px solid #f0d3d7; }
+.pair2 .good { background: #e9f5ef; border: 1px solid #c7e6da; }
+.pair2 h5 { font-size: 11px; margin-bottom: 4px; letter-spacing: 0.3px; text-transform: uppercase; }
+.pair2 .bad h5 { color: #b53a4a; }
+.pair2 .good h5 { color: #107850; }
+
+.busmock { background: #0f1f33; border-radius: 8px; padding: 10px 12px; color: #dbe6f0;
+           font-family: 'Open Sans', sans-serif; }
+.busmock .bm-head { display: flex; justify-content: space-between; align-items: baseline;
+                    border-bottom: 1px solid #26405f; padding-bottom: 5px; margin-bottom: 6px; }
+.busmock .bm-stop { font-size: 12.5px; font-weight: 700; color: #fff; }
+.busmock .bm-code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #7f9ab8; }
+.busmock .bm-row { display: flex; align-items: center; gap: 9px; padding: 4px 0; border-bottom: 1px solid #1b3050; }
+.busmock .bm-row:last-child { border-bottom: none; }
+.busmock .bm-svc { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #F4D03F;
+                   min-width: 34px; }
+.busmock .bm-mins { font-size: 15px; font-weight: 800; color: #6ed492; min-width: 52px; }
+.busmock .bm-mins.soon { color: #ff8b6b; }
+.busmock .bm-load { font-size: 9.5px; color: #9fb3c8; }
+.busmock .bm-foot { font-size: 9px; color: #6f88a5; margin-top: 5px; }
+
+.slide .widget-svg { max-height: 320px !important; height: auto !important; width: 100% !important; }
+.slide .widget { margin: 6px 0 8px; padding: 8px 12px; }
+.slide .widget-controls { margin-top: 6px; }
+
+</style>
+
+<body>
+
+<div class="deck">
+
+<div class="slide slide-cover">
+  <h1>Day 1 &middot; Full End-to-End Building with AI Agents</h1>
+  <div class="subtitle">The screen first, then the back end &middot; Google AI Studio&rsquo;s Build agent, GitHub, Vercel, the LTA bus arrival service, and a key that never leaks</div>
+  <div class="meta">
+    <strong class="author-name">Prof. Sungjong Roh, PhD</strong><br>
+    Academic Director, Master of Science in Business Artificial Intelligence (MBAI)<br>
+    Lee Kong Chian School of Business &middot; Singapore Management University<br>
+    <strong>Building Autonomous AI Agents: LangChain, LangGraph &amp; Model Context Protocol (MCP) &middot; September 2026 Cohort &middot; SMU</strong><br><strong>Day 1 &middot; 09:00&ndash;18:00</strong> &middot; you build in your group, at your table, with an AI agent writing the code
+  </div>
+  <div class="core">
+    <strong>The idea</strong>
+    <p>Today you build a whole product, end to end, and an AI agent writes the code. You tell Google AI Studio&rsquo;s Build agent what to make, you read what it made, and you decide what ships. By 10:30 your group has a screen on a live URL, and it works, and it also does nothing: whatever your user types, the same invented numbers come back, because there is no machinery behind the glass. <span style="font-weight:700;">The rest of the day puts something real behind it.</span> Singapore publishes an unusual amount of live data for free, and by 18:00 your page will tell somebody standing outside this building when the next bus actually arrives.</p>
+  </div>
+  <div class="leave">
+    <div class="leave-h">What we will leave with</div>
+    <ul>
+      <li>Your group has a live URL by 10:30: one screen that the Build agent wrote, GitHub keeps and Vercel serves.</li>
+      <li>You hold an LTA DataMall account key in your own name, requested at 09:00 and delivered by email.</li>
+      <li>You know why a key may never touch the browser, and where it lives instead.</li>
+      <li>By 18:00 the same URL reads real bus arrivals through an <code>/api</code> function in your project, with a health check you can point at when somebody says it is broken.</li>
+      <li>Those <code>/api</code> functions are the tools that tomorrow&rsquo;s agent calls on Day 2.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide" data-section="overview" data-title="A note before we start" data-takeaway="Day 1 of a two-day workshop builds a whole product, end to end. The morning ships a screen, and a screen alone accepts input and returns nothing real, because a real AI product has an Algorithm-as-a-Service behind it. From late morning you add that missing half using free Singapore government APIs. One toolchain runs all day: Google AI Studio to build, GitHub to keep the code, Vercel to host, plus an api folder that lets Vercel run your code. The agent building with you today is AI Studio's Build agent; on Day 2 you build agents yourself with LangChain, LangGraph and MCP, and today's /api functions become the tools they call.">
+  <h2 class="slide-title">A note before we start</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">Where today sits</div>
+        <div class="bm-box" style="margin-bottom:8px;">This workshop runs over two days. <strong>Day 1 is the whole product, end to end.</strong> This morning you build the screen, and from late morning you build the back end behind it, using application programming interfaces that Singapore publishes for anyone to use, free of charge. <strong>Day 2 is the agents</strong>, built with LangChain, LangGraph and MCP.</div>
+        <div class="bm-box" style="border-left:4px solid #2B7A9B;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>Why the screen alone will feel hollow.</strong> A real AI product has an <strong>Algorithm-as-a-Service</strong> behind the screen, something that receives what the user typed and returns an answer computed from real information. The screen you ship at 10:30 will not have one yet, so the input goes in and nothing meaningful comes out. That gap is deliberate, and the rest of the day closes it.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">The toolchain, and the part that is new</div>
+        <div class="bm-box" style="margin-bottom:8px;">You use the same three tools all day: <strong>Google AI Studio</strong> to build, <strong>GitHub</strong> to keep and control the codebase, and <strong>Vercel</strong> to host. After the first break the new idea is a folder called <code>api</code>, which turns Vercel from a place that serves your page into a place that also runs your code.</div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>The agent building with you today is AI Studio&rsquo;s Build agent.</strong> You describe what you want, it writes the files, and you read what it made before anything ships. You do not need to write code, but you do need to check it: which file, which folder, which name. <strong>On Day 2 you build agents yourself</strong>, and the <code>/api</code> functions you deploy today are the tools those agents call.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> A product that cannot answer a question its user actually asked is a picture of a product. <strong>The difference between the two is a back end</strong>, and today is where you build your first one.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="gap" data-title="Why nothing came back" data-takeaway="The screen you deployed this morning is a dining room with no kitchen. It accepts input and shows sample numbers written into the code, because there is nothing behind it that can compute an answer. Three things live behind the glass in a real product: data that is true right now, a rule or model that turns a question into an answer, and a place to keep a secret. All three need a server, which is what the rest of today adds.">
+  <h2 class="slide-title">I &middot; Why your screen accepts input and gives nothing real back</h2>
+  <div class="slide-body">
+    <p data-frag-skip style="margin-bottom:4px;">Think about the screen you deployed this morning. A visitor can type into it, tap it, filter it, and it responds instantly. It is also, in a specific sense, pretending. Everything it shows comes from sample numbers written into the code, so no matter what the visitor asks, the answer was decided before they arrived.</p>
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">What was actually missing</div>
+        <div class="bm-box">
+          <p style="margin-bottom:6px;">Three things live behind the glass in a working product, and this morning&rsquo;s screen has none of them.</p>
+          <p style="margin-bottom:6px;"><strong>Data that is true at this moment.</strong> Not a list you typed, but a number that changes while the page is open, arriving from somewhere that knows.</p>
+          <p style="margin-bottom:6px;"><strong>Something that computes.</strong> A rule, a lookup or a model that turns what the user asked into an answer nobody wrote down in advance. This is the part the industry sells as <strong>Algorithm-as-a-Service</strong>, and it is what makes a product a service rather than a page.</p>
+          <p style="margin-bottom:0;"><strong>Somewhere to keep a secret.</strong> The moment you use a service that knows who you are, you hold a credential, and a credential cannot live in a browser.</p>
+        </div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">What today adds, and what it does not</div>
+        <div class="bm-box" style="margin-bottom:8px;">Today you add the first and the third: <strong>live data</strong> from a service that publishes it, and a <strong>private place</strong> for the credential that gets you in. Your product stops inventing and starts reporting.</div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>The second one, the model, is tomorrow&rsquo;s work.</strong> Wiring a model into your product uses the identical pattern you learn today: a key in an environment variable, a call from a function, an answer returned to the page. On Day 2 an agent calls the <code>/api</code> functions you deploy today as its tools. Learn the pattern on bus arrivals, where the right answer is standing at the kerb and you can check it with your own eyes, before you point it at a model whose answers you cannot check so easily.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> Learn the wiring on data you can verify by looking out of the window. <strong>When the screen says four minutes and the bus arrives in four minutes, you know the whole chain works</strong>, and that certainty is worth more this afternoon than a cleverer feature.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="gap" data-title="What Singapore publishes" data-takeaway="Singapore publishes an unusual amount of live, free, machine-readable data. Three services need no key to start: data.gov.sg real-time (weather, PSI, and carpark lots and taxi positions on the older v1 host), the datasets endpoint (about 241,000 HDB resale transactions from 2017 onward), and SingStat (CPI back to 1961, with 2024 as the base year). A free data.gov.sg Developer key doubles its limits. Three more need a credential: LTA DataMall for transport, OneMap for geocoding and routing, whose token lasts three days, and URA for property transactions, which also wants a token generated every day. MAS needs a Corppass login, your organisation's business identity, so it is out of scope today. Today is LTA, because a bus arriving is the most checkable answer in the city.">
+  <h2 class="slide-title">What Singapore publishes, free, right now</h2>
+  <div class="slide-body">
+    <p data-frag-skip style="margin-bottom:4px;">Your product no longer needs to invent its data. Every service below except URA was called live on 24 September 2026, and URA was checked against its published API reference. Read the second column carefully, because &ldquo;free&rdquo; and &ldquo;no limit&rdquo; are not the same thing, and one of these is out of scope for a course exercise.</p>
+    <table class="bm-table" style="font-size:11px;">
+      <thead><tr><th style="width:150px;">Service</th><th style="width:74px;">Key?</th><th style="width:104px;">Where you call it</th><th>What it gives you</th></tr></thead>
+      <tbody>
+        <tr><td><strong>data.gov.sg real-time</strong></td><td><span class="chip gold">6 / 10s</span></td><td><code>/api</code>, and cache</td><td>Two-hour weather across forty-seven forecast areas, including City, plus rainfall by station and PSI. HDB carpark lots and taxi positions sit only on the older <code>api.data.gov.sg/v1</code> host. A free Developer key doubles the limit.</td></tr>
+        <tr><td><strong>data.gov.sg datasets</strong></td><td><span class="chip gold">4 / 10s</span></td><td><code>/api</code>, and cache</td><td>About 241,000 HDB resale transactions from 2017 onward, filterable by town and flat type. A free Developer key doubles the limit.</td></tr>
+        <tr><td><strong>SingStat</strong></td><td><span class="chip green">100 / min</span></td><td>browser or <code>/api</code></td><td>The consumer price index back to 1961, with 2024 as the base year, so 2024 equals 100. Gross domestic product, population, wages. No key, and 100 calls a minute per IP address.</td></tr>
+        <tr><td><strong>LTA DataMall</strong> <span class="chip red">today</span></td><td><span class="chip gold">free key</span></td><td><code>/api</code> only</td><td>The next bus at any stop, refreshed every twenty seconds. Carpark lots, traffic incidents, train alerts. The AccountKey arrives by email, usually within minutes.</td></tr>
+        <tr><td><strong>OneMap</strong></td><td><span class="chip red">3-day token</span></td><td>token via <code>/api</code></td><td>Postal code to coordinates, walking and public transport routing, a hundred map layers. You need an account. Search and routing now both expect the token, which lasts three days and does not renew itself.</td></tr>
+        <tr><td><strong>MAS</strong> <span class="chip red">out of scope</span></td><td><span class="chip red">Corppass</span></td><td>not today</td><td>Exchange rates and SORA sit behind Corppass, your organisation&rsquo;s business identity, granted by its Corppass admin. That is not appropriate for a course exercise.</td></tr>
+        <tr><td><strong>URA</strong></td><td><span class="chip red">daily token</span></td><td><code>/api</code> only</td><td>Private property transactions at caveat level. An access key arrives by email once your account is activated, and you must generate a new token every day.</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;margin-bottom:6px;"><strong>Why LTA today, when three of these need no key at all.</strong> Precisely because it needs one. The keyless services would let you skip the lesson that matters most, and a bus is the most checkable fact in Singapore: the screen makes a claim, and two minutes later the claim is either standing in front of you or it is not.</div>
+    <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11.5px;padding:6px 10px 6px 14px;margin-bottom:6px;"><strong>Two of these need doing before the day, or at 09:00 at the latest, not during the build.</strong> <strong>LTA</strong> emails your AccountKey, usually within minutes, so request it the evening before, or at 09:00 when you sit down, and check spam as well as your inbox. <strong>OneMap</strong> needs an account, and registration has a CAPTCHA and an email step, so allow about fifteen minutes. Group 4 in particular should register at 09:00. Everything else on this table you can reach for in the afternoon.</div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Rule of thumb</span> Even for the keyless three, <strong>route the call through your own <code>/api</code> anyway</strong>. It lets you cache, so about thirty people look like one polite visitor; it keeps one shape of code for keyed and keyless alike; and it survives the day a provider starts asking for a key. That is no longer hypothetical: <strong>data.gov.sg has enforced rate limits on callers without a key since 31 December 2025</strong>. It does not publish how it counts them, so assume everyone on the room&rsquo;s network shares one allowance of six calls in ten seconds, and that your function on Vercel shares Vercel&rsquo;s servers with strangers. Cache, and get the free key if you rely on it.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="api" data-title="What an API is" data-takeaway="An API is a published address that answers a question in a format a program can read. You send a request to a URL, optionally with parameters and a header proving who you are, and a machine sends back JSON: text arranged as labelled fields your code can pick apart. Nothing more mysterious than that. The four parts of a request are the address, the parameters, the headers, and the method, and for everything today the method is GET, meaning fetch, do not change anything.">
+  <h2 class="slide-title">II &middot; An API is an address that answers in a format a program can read</h2>
+  <div class="slide-body">
+    <p data-frag-skip style="margin-bottom:4px;">There is less mystery here than the acronym suggests. When you open a web page, a server sends back something arranged for a human eye. When your code calls an API, a server sends back the same kind of thing arranged for a program: labelled fields, no decoration, ready to be picked apart.</p>
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">The four parts of any request</div>
+        <table class="bm-table" style="font-size:11px;margin-top:6px;">
+          <tbody>
+            <tr><td style="width:78px;"><strong>Address</strong></td><td>Which service, and which question of it. <code>&hellip;/v3/BusArrival</code> asks about buses.</td></tr>
+            <tr><td><strong>Parameters</strong></td><td>The specifics, after a <code>?</code>. <code>BusStopCode=01012</code> says which stop you mean.</td></tr>
+            <tr><td><strong>Headers</strong></td><td>Facts about the request rather than the question, including who is asking. LTA wants <code>AccountKey</code> here.</td></tr>
+            <tr><td><strong>Method</strong></td><td>What kind of act it is. Everything today is <code>GET</code>, which means fetch this and change nothing.</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #2B7A9B;font-size:11px;padding:5px 10px 5px 14px;">Two things come back: a <strong>status code</strong>, a three-digit number saying how it went, and a <strong>body</strong>, which is the answer itself. Section VI is about reading both.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">What the answer looks like</div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-json" style="font-size:9.4px;">{
+  "BusStopCode": "01012",
+  "Services": [
+    {
+      "ServiceNo": "7",
+      "NextBus":  { "EstimatedArrival": "2026-09-09T14:22:31+08:00",
+                    "Load": "SEA", "Type": "DD" },
+      "NextBus2": { "EstimatedArrival": "2026-09-09T14:31:07+08:00",
+                    "Load": "SDA", "Type": "SD" }
+    }
+  ]
+}</pre><button type="button" class="copybtn" data-target="p-json">Copy</button></div>
+        <div class="bm-box" style="font-size:11px;padding:5px 10px;"><strong>This shape is called JSON</strong>, and it is the whole vocabulary you need. Braces hold labelled fields, square brackets hold lists, and you reach a value by naming the path to it. Notice that LTA gives you a <em>timestamp</em>, not a number of minutes: turning one into the other is your code&rsquo;s job, and it is the first thing that will look wrong on screen.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> The field names in that answer are facts, not guesses. <strong>Call the endpoint once, look at what actually comes back, and paste those real lines into your prompt.</strong> An agent asked to guess the path will invent something reasonable, and reasonable is not the same as correct.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="api" data-title="Explainer: which way the request travels" data-no-frag data-takeaway="Interactive: two possible routes for the same request. The direct route, browser straight to LTA, fails twice over: the custom header makes the browser ask permission before sending, LTA refuses it with a 403 and no permission header so the request is abandoned, and the key would have been published with the page anyway. The proxied route, browser to your own function to LTA, works because your page only ever talks to your own address, and the key is added out of sight on the server. This one diagram is the architecture of every keyed API you will ever wire.">
+  <h2 class="slide-title">Which way the request travels, and why only one way works</h2>
+  <div class="slide-body">
+    <div class="widget" data-widget="request-path">
+      <div class="widget-header"><span class="explainer-badge">Prof. Roh&rsquo;s Interactive Explainer</span><span class="widget-readout" id="rp-readout">&mdash;</span></div>
+      <svg class="widget-svg" id="rp-svg" viewBox="0 0 720 206" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="widget-controls">
+        <label><input type="radio" name="rp-mode" value="direct"> straight from the browser</label>
+        <label><input type="radio" name="rp-mode" value="proxied" checked> through your own function</label>
+        <span class="widget-readout" id="rp-verdict">&mdash;</span>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:4px;">
+      <div><div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>The browser rule that surprises people.</strong> A page is not allowed to read a response from another site unless that site explicitly permits it, by sending a header that says so. LTA sends no such header. Worse, because your call carries the <code>AccountKey</code> header, the browser sends a silent permission request of its own first, and LTA refuses it with a 403 and no permission header, so <strong>your real request never leaves the browser at all</strong>. Even without the header, the browser would not let your page read LTA&rsquo;s reply. This is a browser protection, not an LTA fault, and it exists precisely because pages should not be able to quietly read other people&rsquo;s services.</div></div>
+      <div><div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>Why the detour solves both problems at once.</strong> Your page calls <code>/api/bus</code>, which is your own address, so there is no permission question to answer. Your function then calls LTA from a server, where headers are private and browser rules do not apply. One small change of route, and both the secrecy problem and the permission problem disappear together.</div></div>
+    </div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="lta" data-title="What LTA gives you" data-takeaway="LTA DataMall publishes the transport network live and free: bus arrivals refreshed every twenty seconds, carpark availability, traffic incidents, train service alerts. One short form, and LTA emails you an AccountKey, usually within minutes. Every key is the same kind, the terms set a ceiling of ten million calls a day that LTA may change or enforce without warning, and commercial use is allowed. Attribution with a link to the licence is mandatory, the Singapore Open Data Licence forbids suggesting official status or LTA endorsement, and each person keeps their own key secure and confidential, even from teammates.">
+  <h2 class="slide-title">III &middot; What LTA DataMall gives you, and what it asks in return</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">What you can read</div>
+        <div class="bm-box" style="margin-bottom:8px;">The Land Transport Authority publishes the network as it is running right now. <strong>Bus arrivals refresh every twenty seconds.</strong> Alongside them sit carpark availability across HDB, LTA and URA sites, traffic incidents, train service alerts, and the location of every electric vehicle charging point. Today you use exactly one of these, and the rest are there when your product needs them.</div>
+        <div class="bm-box" style="border-left:4px solid #2B7A9B;font-size:11px;padding:5px 10px 5px 14px;"><strong>The same credential for everybody.</strong> There is no developer key and production key to choose between, and no upgrade to ask for. Every key is the same kind, each person has their own, and LTA&rsquo;s terms set a ceiling of <strong>ten million calls a day</strong> per key, which LTA may change or enforce without warning. A room of thirty refreshing all afternoon does not come close to it.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">What you owe them</div>
+        <table class="bm-table" style="margin-top:6px;font-size:11px;">
+          <tbody>
+            <tr><td style="width:96px;"><strong>Attribution</strong></td><td><strong>Mandatory.</strong> A visible source notice with a link to the licence has to appear in your deployed app. There is a copyable line in section VII, ready to paste.</td></tr>
+            <tr><td><strong>Commercial use</strong></td><td>Allowed, both by the API terms and by the Singapore Open Data Licence. You may build a business on this.</td></tr>
+            <tr><td><strong>Never imply endorsement</strong></td><td>The Singapore Open Data Licence version 1.0 forbids suggesting official status or LTA endorsement. This one catches people at the naming stage, so choose a name that is clearly yours.</td></tr>
+            <tr><td><strong>Your key is yours alone</strong></td><td>Each person requests their own key and keeps it secure and confidential. LTA&rsquo;s terms require this, so do not share it, even with teammates.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Free means free of charge</span> It does not mean free of obligation. <strong>The attribution line is not decoration and takes thirty seconds to add</strong>, so add it while you are building rather than promising yourself you will add it before the demonstration.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="lta" data-title="Requesting the key, click by click" data-no-frag data-takeaway="The account request form, numbered, as checked on the live page on 24 September 2026. On datamall.lta.gov.sg, scroll down to the section headed Dynamic Data, or open Dynamic Datasets in the top menu, and click Request for API Access, the left button. Part I wants Name, Email and Contact No; Company Name is optional. Type every field in plain English letters, because an accent, a Chinese character or a curly quote stops the form. Part II: tick Website/Portal, because what you deploy today is a website; Description is optional. Type the verification code into the small box to the left of the picture. Part III: tick the first box, which accepts the Singapore Open Data Licence and the Terms of Service. Click the blue Submit on the right, not the dark Reset on the left, then OK when the browser asks Confirm submission. LTA emails the key, usually within minutes.">
+  <h2 class="slide-title">Requesting the key: what you click, in order</h2>
+  <div class="slide-body">
+    <div class="ui-pair">
+      <div class="ui-fig widget" data-widget="ui-mockup" data-ui="ui-lta-request" style="padding:6px;flex:1.15;"><svg viewBox="0 0 470 360" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="ui-legend">
+        <p style="font-size:11px;margin:0 0 4px;">You submitted this at 09:00. If you did not, do it now, on a laptop.</p>
+        <ol>
+          <li>Open <code>datamall.lta.gov.sg</code> and scroll down to the section headed <strong>Dynamic Data</strong>. <span class="lbl">Dynamic Datasets</span> in the top menu has the same button.</li>
+          <li>Click <span class="lbl">Request for API Access</span>, the left button, not <em>API Documentation</em>.</li>
+          <li><strong>Name</strong>: type it in plain English letters. An accent, a Chinese character or a curly quote stops the form.</li>
+          <li><strong>Email</strong>: an address you can open here today, because the key is sent there.</li>
+          <li><strong>Contact No</strong>: leave the flag on <em>Singapore +65</em> and type your 8-digit number. For an overseas number, choose the country from the flag first.</li>
+          <li><strong>Company Name</strong> is optional. Leave it blank or type your organisation.</li>
+          <li>Under <em>Purpose of Usage</em>, tick <span class="lbl">Website/Portal</span>, because what you deploy today is a website.</li>
+          <li><strong>Description</strong> is optional. Type one plain sentence rather than pasting it from Word.</li>
+          <li>Type the characters from the picture into the small box to its <strong>left</strong>. If you cannot read them, click the blue <span class="lbl">Refresh</span>.</li>
+          <li>Tick the first box, which accepts the Singapore Open Data Licence and the Terms of Service for API and SDK. The mailing-list box is optional.</li>
+          <li>Click the blue <span class="lbl">Submit</span> on the <strong>right</strong>. The dark <span class="lbl">Reset</span> on the left clears the form.</li>
+          <li>When the browser asks <em>Confirm submission?</em>, click <span class="lbl">OK</span> and wait for a confirmation message to replace the form.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Then watch your inbox</span> LTA emails the AccountKey to the address from step 4, usually within minutes, so check spam or junk as well. <strong>Copy it into exactly two places</strong>: AI Studio&rsquo;s Secrets panel for the preview, and Vercel for the live site, both in section V. It never goes into the chat, a message or the code.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="lta" data-title="The endpoints and the stops" data-no-frag data-takeaway="The bus arrival endpoint is v3, BusStopCode is the only required parameter, ServiceNo is optional, and the AccountKey travels as a header. To check your key once, read it into a variable in Terminal or PowerShell and run one curl line: HTTP status 200 means the key works. Bus Arrival has been v3 since August 2024, and the old BusArrivalv2 path now returns the same 404 as a missing key. The ERP Rates API was removed on 30 September 2024. Six bus stop codes around SMU: 04121 SMU on Stamford Road is the default because it is seventy metres from the School of Accountancy and you can stand at it. Around thirty services call there, many of them only at peak hours. Codes are five digits and the leading zero is part of the code, even though community sites strip it.">
+  <h2 class="slide-title">The endpoint, and six stops you can walk to</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div style="flex:1.15;">
+        <div class="bm-banner">The call, with the header that makes it work</div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-endpoint" style="font-size:9px;line-height:1.35;">GET https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121
+Header:  AccountKey: [your key from the email]
+
+# BusStopCode is the only required parameter.
+# Add &amp;ServiceNo=7 to ask about one service only.
+# Refreshes every 20 seconds. JSON comes back by default.</pre><button type="button" class="copybtn" data-target="p-endpoint">Copy</button></div>
+        <div class="ui-legend" style="margin-top:2px;">
+          <div style="font-size:10.5px;font-weight:700;color:#1B3556;margin:0 0 1px;">Check your key once, from Terminal (Mac) or PowerShell (Windows)</div>
+          <ol>
+            <li>Type <code>read -s LTA_KEY</code> on a Mac, or <code>$k = Read-Host "Paste LTA key"</code> on Windows, and press <span class="kbd">Return</span>.</li>
+            <li>Paste your key and press <span class="kbd">Return</span>. On a Mac nothing appears, and that is expected.</li>
+            <li>Click <span class="lbl">Copy</span> on the line for your machine, the first for a Mac and the second for Windows, paste it and press <span class="kbd">Return</span>.</li>
+            <li>Read the last line. <code>HTTP status: 200</code> means your key works.</li>
+          </ol>
+        </div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-endpoint-mac" style="font-size:8.6px;line-height:1.3;margin:3px 0;">curl -sS -w "\nHTTP status: %{http_code}\n" -H "AccountKey: $LTA_KEY" "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121"</pre><button type="button" class="copybtn" data-target="p-endpoint-mac">Copy</button></div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-endpoint-win" style="font-size:8.6px;line-height:1.3;margin:3px 0;">curl.exe -sS -w "\nHTTP status: %{http_code}\n" -H "AccountKey: $k" "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121"</pre><button type="button" class="copybtn" data-target="p-endpoint-win">Copy</button></div>
+        <div style="font-size:10px;color:#555;line-height:1.35;">The Windows line says <code style="font-size:9.5px;">curl.exe</code> because in Windows PowerShell plain <code style="font-size:9.5px;">curl</code> is a different command. The address bar cannot send the header, so it always answers 404. Section VII repeats this when you need the JSON for the master prompt.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Stops around this building</div>
+        <table class="bm-table" style="margin-top:6px;font-size:10.5px;">
+          <thead><tr><th style="width:52px;">Code</th><th>Description</th><th style="width:82px;">Road</th></tr></thead>
+          <tbody>
+            <tr style="background:#eaf4ee;"><td><strong>04121</strong></td><td><strong>SMU</strong>&mdash;the default</td><td>Stamford Rd</td></tr>
+            <tr><td>04179</td><td>Aft Bras Basah Stn Exit A</td><td>Bras Basah Rd</td></tr>
+            <tr><td>01012</td><td>Hotel Grand Pacific</td><td>Victoria St</td></tr>
+            <tr><td>04151</td><td>Cath of The Good Shepherd</td><td>Victoria St</td></tr>
+            <tr><td>04159</td><td>Aft CHIJMES</td><td>Victoria St</td></tr>
+            <tr><td>08069</td><td>Bencoolen Stn Exit B</td><td>Bras Basah Rd</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:10.5px;padding:5px 10px 5px 14px;margin-bottom:6px;"><strong>Use 04121.</strong> It is seventy metres from the School of Accountancy and seventy-three from SMU Connexion, so you can stand at the physical stop and compare it with your own screen. Around thirty services call there, but many run only at peak hours, so the board shows fewer in the afternoon.</div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:10.5px;padding:5px 10px 5px 14px;"><strong>Two version traps.</strong> Bus Arrival has been <strong>v3</strong> since August 2024. The old <code>BusArrivalv2</code> path from older tutorials now returns 404 <em>The requested API was not found</em>, exactly like a missing key, so a pasted old URL looks like a key problem. The ERP Rates API was removed on 30 September 2024, so a guide that still describes it is out of date elsewhere too.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">The leading zero is part of the code</span> A stop code is <strong>five digits</strong>, and community websites strip the leading zero: one popular site displays our stop as &ldquo;B/S 4121&rdquo;. <strong>The code you type is 04121.</strong> If your screen is empty and your key is right, count the digits before you blame anything else.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="lta" data-title="The 404 that is not a 404" data-takeaway="The most expensive misunderstanding of the afternoon. A missing AccountKey header returns 404 with the plain text The requested API was not found, and so does an empty header value, a mis-cased path or the old BusArrivalv2 path. A header that is present but holds the wrong key returns 401 with an empty body. The trap is that an unset Vercel variable does not send an empty header: JavaScript turns undefined into the word undefined and sends that, so a variable you forgot to redeploy also returns 401, identical to a wrong key. A missing or wrongly capitalised BusStopCode returns 403 with an Access Denied page. Plain http is not a cause, because LTA redirects it to https. That is why the function must report keyConfigured itself, and why the health endpoint is read before the key is re-copied.">
+  <h2 class="slide-title">The error that will cost you an hour, and the one that saves it</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner" style="background:#b53a4a;">Different failures, different codes</div>
+        <div class="bm-box" style="margin-bottom:6px;font-size:11px;padding:5px 10px 5px 14px;">Almost every service answers a missing credential with <code>401</code>, which says plainly what is wrong. LTA does not, and its exact behaviour hands you a free diagnostic. These are real responses, checked live on 24 September 2026.</div>
+        <table class="bm-table" style="font-size:10.5px;margin:2px 0 6px;">
+          <thead><tr><th style="width:190px;">What you sent</th><th style="width:52px;">Code</th><th>Body</th></tr></thead>
+          <tbody>
+            <tr><td>No <code>AccountKey</code> header at all</td><td><span class="chip red">404</span></td><td><em>The requested API was not found</em></td></tr>
+            <tr><td>Header with an <strong>empty</strong> value, e.g. code that falls back to <code>''</code></td><td><span class="chip red">404</span></td><td>the same as no header</td></tr>
+            <tr><td>Header present, <strong>wrong</strong> key</td><td><span class="chip gold">401</span></td><td>nothing at all, an empty body</td></tr>
+            <tr style="background:#fdf6f7;"><td><strong>Variable never set</strong>, so your code sends the word <code>undefined</code></td><td><span class="chip gold">401</span></td><td><strong>identical to a wrong key</strong>, which is the trap below</td></tr>
+            <tr><td>Mis-cased path, or the old <code>BusArrivalv2</code></td><td><span class="chip red">404</span></td><td>the same as a missing key</td></tr>
+            <tr><td><code>BusStopCode</code> missing or wrongly capitalised</td><td><span class="chip gold">403</span></td><td>an HTML <em>Access Denied</em> page</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:10.5px;padding:5px 10px 5px 14px;"><strong>Why the shaded row matters most.</strong> If your Vercel variable was never saved, or was saved and never redeployed, then <code>process.env.LTA_ACCOUNT_KEY</code> is <code>undefined</code>. JavaScript does not drop that header: it sends the nine-letter word <em>undefined</em>, and LTA answers <strong>401</strong>, byte for byte the same as a genuinely wrong key. <strong>So the commonest failure of the afternoon and the one everybody guesses first look identical from the outside</strong>, which is why the function has to say which it was.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Read the code, then act</div>
+        <table class="bm-table" style="margin-top:6px;font-size:11px;">
+          <tbody>
+            <tr><td style="width:48px;"><span class="chip red">404</span></td><td><strong>The header never arrived, arrived empty, or the path is wrong.</strong> Check, in this order: is the header spelled <code>AccountKey</code>, one word, because <code>accountkey</code> is fine but <code>Account-Key</code> is a different header; does it carry a value at all; is the path spelled with the documentation&rsquo;s capitals, because <code>/v3/Busarrival</code> is a 404 even with a correct key. Plain <code>http</code> is not a cause: LTA redirects it to <code>https</code> and <code>fetch</code> follows.</td></tr>
+            <tr><td><span class="chip gold">401</span></td><td><strong>Some value arrived and LTA refused it.</strong> Two different faults land here and you cannot tell them apart from the outside, so <strong>read <code>/api/health</code> first</strong>. If <code>keyConfigured</code> is false, the variable is missing or you never redeployed. If it is true, the value itself is wrong, so re-copy it from the email and watch for a trailing space.</td></tr>
+            <tr><td><span class="chip gold">403</span></td><td><strong>An <em>Access Denied</em> page means the stop code never arrived.</strong> The parameter must be spelled <code>BusStopCode</code> exactly, with those capitals.</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:11px;padding:5px 10px 5px 14px;margin-top:6px;">Getting a <strong>401 after a string of 404s is still progress</strong>: the address and the header name are now right, and the whole chain from your page to your function to LTA is connected. What remains is the value, and <code>keyConfigured</code> tells you whether the value is wrong or simply absent.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> An error message is a claim the system makes about itself, and systems are often unhelpful about their own failures. <strong>Learn what your service does when it is unhappy</strong>, because the textbook meaning of a code is not always the local one.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="secrets" data-title="What a key is" data-takeaway="An API key is not a password to an account; it is a name badge that says which caller this is, so the provider can meter and, if necessary, ban. Nobody steals it to read bus times: they steal it to spend your quota, to act in your name, and because a key that works on one service is worth trying elsewhere. It is your name on every call it makes, which is why the whole discipline exists.">
+  <h2 class="slide-title">IV &middot; What a key actually is, and why anyone would want yours</h2>
+  <div class="slide-body">
+    <p data-frag-skip style="margin-bottom:4px;">An API key is not quite a password. A password proves you are you, so that a service can show you your own things. A key is closer to a name badge worn by your software: it tells the provider which caller this is, so they can count the calls, apply the limits, and switch you off if you misbehave.</p>
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">Why anybody would take it</div>
+        <div class="bm-box">
+          <p style="margin-bottom:6px;">Nobody steals an LTA key because they are desperate to know when the 174 arrives. They take it for three other reasons, and all three apply to a project built in a day.</p>
+          <p style="margin-bottom:6px;"><strong>To spend what is yours.</strong> A key carries a quota. Someone else&rsquo;s traffic on your key exhausts your limit, and your product stops working with no fault of its own.</p>
+          <p style="margin-bottom:6px;"><strong>To act in your name.</strong> Every call made with your key is recorded as yours. If it is used to hammer a government service, the record says you did it.</p>
+          <p style="margin-bottom:0;"><strong>Because keys travel in packs.</strong> Automated scanners collect them wholesale from public code. A key that works is worth trying against other services, and the person who finds yours is a script, not a person who read your project and admired it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">The key names this course uses</div>
+        <table class="bm-table" style="margin-top:6px;font-size:11px;">
+          <tbody>
+            <tr><td style="width:132px;"><code>LTA_ACCOUNT_KEY</code></td><td>Today. Transport data.</td></tr>
+            <tr><td><code>GEMINI_API_KEY</code></td><td>The model. AI Studio creates one for you the first time you accept its terms, and puts it in the Secrets panel of any app that uses Gemini. If you already have one that starts <code>AIza</code>, make a new one, because Gemini is retiring that kind.</td></tr>
+            <tr><td><code>ONEMAP_TOKEN</code></td><td>If you add a map. Expires every three days, which is a diary entry, not a bug.</td></tr>
+            <tr><td><code>DATA_GOV_SG_API_KEY</code></td><td>Optional. A free data.gov.sg Developer key doubles its limits, and travels in the <code>x-api-key</code> header.</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;"><strong>Use these exact names.</strong> Consistent naming across the room means anyone at another table can read your function and know immediately what it needs, and it means my worked examples paste into your project without editing.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> A credential is scoped power: who is calling, for what, with what limit, and until when. <strong>You will meet this idea again tomorrow, when an agent calls your <code>/api</code> functions as its tools</strong>, and it will matter far more then than it does today.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="secrets" data-title="Explainer: where a key leaks" data-no-frag data-takeaway="Interactive: four places people put a key and who can read it in each. Typed into the component, it compiles into the bundle. A VITE_ variable is the cruel trap, because it feels like a secret and Vite inlines it into the browser bundle by design. Committed to GitHub, scanners find it within minutes and git history keeps it after deletion. Only a Vercel environment variable read inside a function keeps it private, because the value never enters the bundle and never enters the repository.">
+  <h2 class="slide-title">Where a key leaks, and who ends up holding it</h2>
+  <div class="slide-body">
+    <div class="widget" data-widget="key-leak">
+      <div class="widget-header"><span class="explainer-badge">Prof. Roh&rsquo;s Interactive Explainer</span><span class="widget-readout" id="kl-readout">&mdash;</span></div>
+      <svg class="widget-svg" id="kl-svg" viewBox="0 0 720 152" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="widget-controls">
+        <span style="font-size:11px;color:#555;">Click any row to see what that choice actually does.</span>
+        <span class="widget-readout" id="kl-verdict">&mdash;</span>
+      </div>
+    </div>
+    <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11.5px;padding:6px 10px 6px 14px;margin-bottom:6px;"><strong>The second row is the one that catches careful people.</strong> Putting a key in a <code>.env</code> file feels like exactly the responsible thing to do, and for a server variable it is. But a name beginning <code>VITE_</code> is a specific instruction to the build tool: take this value and write it into the JavaScript the browser downloads. The file is private and the value is not. <strong>If a variable is a secret, its name must never start with <code>VITE_</code>, and it must be read by a function rather than by a page.</strong></div>
+    <div class="bm-callout callout-rule"><span class="bm-label">The test that settles it</span> Ask one question of any variable: <em>does the browser need to know this?</em> A colour, a title, a public map style, yes. <strong>A credential, never.</strong> If the browser does not need it, it belongs on the server, and there is no middle case.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="secrets" data-title="The rules that keep it private" data-takeaway="Six rules. Never type a key into a component or a prompt. Never let a secret name start with VITE_. Confirm .gitignore holds .env* and !.env.example before the key arrives. Search every diff for the first characters of your key before pushing. If a key does reach a commit, rotate at the provider first and tidy the repository second, because deleting the file does not un-publish it. And one key per person, never shared, even with teammates, because LTA's terms require you to keep your key secure and confidential, and a shared key makes your limit somebody else&#39;s problem and their mistake yours.">
+  <h2 class="slide-title">The rules that keep a key private, and the one people get backwards</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:11.5px;">
+      <thead><tr><th style="width:32px;"></th><th style="width:230px;">The rule</th><th>Why it is written this way</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><strong>Never type a key into a component, and never paste one into a prompt.</strong></td><td>Both end up somewhere permanent. Code goes to the browser and the repository; a prompt goes into a conversation you do not control, and on a free tier it may be read by a human reviewer.</td></tr>
+        <tr><td><strong>2</strong></td><td><strong>A secret&rsquo;s name never begins with <code>VITE_</code>.</strong></td><td>That prefix is an instruction to publish the value in the browser bundle. It is the single most common way a careful builder leaks a key while believing they were being careful.</td></tr>
+        <tr><td><strong>3</strong></td><td><strong>Check <code>.gitignore</code> before the key arrives.</strong></td><td>It must contain <code>.env*</code> and <code>!.env.example</code>. AI Studio&rsquo;s template already has both lines, but the agent can rewrite the file, so check they are still there. Do this while your repository is still boring, because the moment the key exists you will be in a hurry.</td></tr>
+        <tr><td><strong>4</strong></td><td><strong>Search the diff before you push.</strong></td><td>Look for the first eight characters of each key you actually hold. For Google that is the <code>AQ.</code> form AI Studio has issued since May 2026, plus the older <code>AIza</code> form if you still have one. Ignore hits inside words such as <code>FAQ.</code> Ten seconds, every push.</td></tr>
+        <tr><td><strong>5</strong></td><td><strong>If a key reaches a commit: rotate first, tidy second.</strong></td><td>This is the one people get backwards. Deleting the file does not un-publish the key, because the history keeps it and scanners have already read it. <strong>Go to the provider, revoke, issue a new one</strong>, and only then clean the repository.</td></tr>
+        <tr><td><strong>6</strong></td><td><strong>One key per person, never shared, even with teammates.</strong></td><td>LTA&rsquo;s terms require you to keep your key secure and confidential, and keys are free, so there is no reason to pass one around. A shared key means a shared quota and no way to tell whose traffic caused a problem.</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> Git history is permanent by design, and that is a feature until the day it is not. <strong>A key pushed once stays readable in the log after you delete it</strong>, which is why rule five puts revocation before tidying.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="wiring" data-title="The three stations, one new folder" data-takeaway="The toolchain is the one you used at 09:15 to put your screen online: Google AI Studio builds, GitHub keeps and controls, Vercel hosts. The single new idea is a folder called api at the root of the project, alongside src and package.json. Any file you put in it becomes a small program that runs on Vercel's servers when somebody visits its address, so api/bus.js answers at /api/bus. That is what turns Vercel from a place that serves your page into a place that also runs your code, and these functions are what tomorrow's agent calls as tools.">
+
+  <h2 class="slide-title">V &middot; The same toolchain, with one new folder inside it</h2>
+  <div class="slide-body">
+    <div class="chain">
+      <span class="cs"><em>A</em>Google AI Studio<small>writes the function and the screen</small></span>
+      <span class="carrow">&rarr;</span>
+      <span class="cs"><em>B</em>GitHub<small>keeps the code, never the key</small></span>
+      <span class="carrow">&rarr;</span>
+      <span class="cs"><em>C</em>Vercel<small>holds the key and runs the function</small></span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">The one new idea</div>
+        <div class="bm-box" style="margin-bottom:8px;">Put a folder called <code>api</code> at the <strong>root</strong> of your project, next to <code>src</code> and <code>package.json</code> rather than inside them. Any file you place in it becomes a small program that Vercel runs on its own servers whenever somebody visits the matching address. A file at <code>api/bus.js</code> answers at <code>/api/bus</code>, and that is the entire convention.</div>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:11px;padding:5px 10px 5px 14px;">No configuration file is needed. The folder is the instruction, and it works the same way whether your project is React, plain HTML, or anything else. Next.js is the exception: it uses <code>app/api</code> instead. On Vercel&rsquo;s import screen, <strong>Framework Preset</strong> should read Vite; if it says Node or Express, change it to Vite.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Why this changes what your product can be</div>
+        <div class="bm-box" style="margin-bottom:8px;">Until now Vercel handed visitors a finished page and had nothing more to say. With an <code>api</code> folder it will also <strong>run your instructions on demand</strong>, in a place the visitor cannot see into. That private place is what makes a key safe, and tomorrow&rsquo;s agent calls the functions you put there as its tools.</div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;"><strong>If you search the web for this, take care.</strong> Vercel&rsquo;s own page about Vite does not mention the <code>api</code> folder and points readers somewhere far more complicated. The simple convention on this slide is correct and is documented on their functions pages.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> The front end is the part of your product the world can read, and the back end is the part it cannot. <strong>Everything you want to keep, keep on the far side of that line</strong>, and the line is drawn by which folder a file sits in.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="wiring" data-title="Google AI Studio, click by click" data-no-frag data-takeaway="In AI Studio, twice. At 09:15 you start a new app: go to aistudio.google.com/apps, sign in with a personal Google account, describe the one screen in the prompt box, send it, and check the preview on the right. In the group build you open that same app, paste the master prompt into the chat panel, and check the Code tab: api/bus.js and api/health.js at the root beside package.json, not in src, because that is what Vercel runs; and server.ts at the root registering the same two routes, because that is what the preview runs. The key is read with process.env.LTA_ACCOUNT_KEY and appears in no file. The preview gets the key from the Secrets section under the gear at the top right, which belongs to AI Studio alone, so Vercel needs the same value at station C. The preview never runs the api folder, so /api/bus there answers 200 with a page or source code rather than JSON. Every later push goes out from the GitHub tab with Push Changes.">
+  <h2 class="slide-title">Station A &middot; Google AI Studio: what you click, in order</h2>
+  <div class="slide-body">
+    <div class="ui-pair">
+      <div class="ui-fig widget" data-widget="ui-mockup" data-ui="ui-aistudio-api" style="padding:6px;flex:1.05;"><svg viewBox="0 0 470 306" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="ui-legend">
+        <div style="font-size:10.5px;font-weight:700;color:#1B3556;margin:0 0 1px;">At 09:15: a new app</div>
+        <ol>
+          <li>Go to <code>aistudio.google.com/apps</code>. The short link <code>ai.studio/build</code> lands on the same page.</li>
+          <li>Sign in with a <strong>personal</strong> Google account, not a work one, whose admin may have switched AI Studio off. On a first visit, accept the Terms of Service.</li>
+          <li>Describe the one screen you want in the prompt box, then send it with the button beside the box.</li>
+          <li>Wait while the agent writes the files, then check that the preview on the right shows your screen.</li>
+        </ol>
+        <div style="font-size:10.5px;font-weight:700;color:#1B3556;margin:4px 0 1px;">In the group build: the same app, with the master prompt</div>
+        <ol style="counter-reset:uis 4;">
+          <li>Open the same app from your list at <code>aistudio.google.com/apps</code>.</li>
+          <li>Paste the master prompt from the next slide into the chat panel and send it.</li>
+          <li>Open the <span class="lbl">Code</span> tab. <code>api/bus.js</code> and <code>api/health.js</code> must sit at the root beside <code>package.json</code>, not in <code>src</code>, because that is what Vercel runs.</li>
+          <li>Check that <code>server.ts</code> at the root registers <code>/api/bus</code> and <code>/api/health</code>, because that is the file the preview runs. If it is missing, ask the agent for it.</li>
+          <li>Check that the key is read with <code>process.env.LTA_ACCOUNT_KEY</code> and appears as text nowhere.</li>
+          <li>Click the gear at the top right, open <span class="lbl">Secrets</span>, and add <code>LTA_ACCOUNT_KEY</code> with your key. If the agent shows a card in the chat asking for it, paste it there instead.</li>
+          <li>Reload the preview and check that arrival times appear.</li>
+        </ol>
+        <div style="font-size:10px;color:#555;margin-top:3px;line-height:1.35;">The preview never runs the <code style="font-size:9.5px;">api/</code> folder, so <code style="font-size:9.5px;">/api/bus</code> there answers 200 with a page or source code, which looks like success and is not. The Secret belongs to AI Studio alone; Vercel needs the same value at station C. If the screen differs, look for the same control nearby: labels on signed-in pages were not checked.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Station B &middot; every later push</span> Click the gear, open the <span class="lbl">GitHub</span> tab, check it reads <em>AI Studio Changes Ready</em> and that no <code>.env</code> file is in the list, then click <span class="lbl">Push Changes</span>. <strong>Nothing you change in AI Studio reaches GitHub, or your Vercel site, until you push.</strong></div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="wiring" data-title="The prompt that writes the function" data-no-frag data-takeaway="One copyable master prompt in R·G·O·G·C form that asks AI Studio for two files: api/bus.js which reads the AccountKey from process.env, calls the v3 endpoint, caches for twenty seconds and returns simplified arrivals; and api/health.js which reports whether the key is present and whether LTA answered, without ever printing the key. The guardrails do the real work: never write the key into any file, never use a VITE_ name, never call LTA from the browser.">
+  <h2 class="slide-title">The prompt that writes it <span style="font-size:13px;color:#8899AA;font-weight:400;">&middot; copy this, then fill the one bracket</span></h2>
+  <div class="slide-body">
+    <div class="prompt-wrap"><pre class="bm-code prompt" id="p-master" style="font-size:8.4px;line-height:1.34;columns:2;column-gap:20px;column-rule:1px solid #DCE3EA;">ROLE: You are a senior full-stack developer working in this existing Vite + React project.
+
+GOAL: Add a live bus arrival panel to the screen, fed by two new serverless functions.
+ 1) api/bus.js—accepts a BusStopCode query parameter, defaults to 04121, calls
+    https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival and returns a
+    simplified list: for each service, the ServiceNo and the minutes until each of the
+    next two buses, worked out from the EstimatedArrival timestamps.
+ 2) api/health.js—reports whether the key is configured (keyConfigured) and whether LTA
+    answered, including the upstream HTTP status code, for checking the service without
+    opening the app. It must never print the key or any part of it.
+ 3) On the screen, a panel listing each service with its next two arrivals in minutes,
+    refreshing every 20 seconds, which matches both the cache below and how often LTA itself updates, rounding down to whole minutes as LTA's guide asks, showing "Arriving" under one minute, and showing a
+    plain sentence when a service has no buses running.
+
+OUTPUT: Write the two handlers TWICE, in the two shapes this toolchain needs.
+ (a) Standalone files at api/bus.js and api/health.js in the PROJECT ROOT, siblings of
+     package.json and never inside src/. This is the form Vercel runs.
+ (b) The same two routes registered as Express routes in server.ts at the project root,
+     the file the preview runs (package.json, scripts, dev: tsx server.ts), as
+     app.get("/api/bus") and app.get("/api/health"), importing the shared handler rather
+     than duplicating the logic. If this project has no server.ts, create one. This is the
+     form the AI Studio preview runs. Neither form works in the other place, so I need both.
+ Make sure package.json contains "type": "module", which Vercel requires for .js files
+ in api/ outside a framework; otherwise name the two files api/bus.mjs and api/health.mjs.
+ Read the credential with process.env.LTA_ACCOUNT_KEY and send it as the HTTP header
+ named exactly AccountKey. BEFORE the fetch, if that variable is missing or empty, return
+ 503 with {"error":"LTA_ACCOUNT_KEY is not set. Add it in Vercel and redeploy."} and do not
+ call LTA at all; never let an unset variable reach the header, because JavaScript sends the
+ word "undefined" and LTA answers 401 exactly as it would for a wrong key.
+ AFTER the fetch, check response.ok before reading the body. LTA returns an empty body on
+ 401, so calling response.json() on a failed reply throws and crashes the function. On a
+ non-2xx reply, return the upstream status and a one-line reason in your own JSON instead.
+ Set Cache-Control: s-maxage=20, stale-while-revalidate=40 on the bus response, because LTA
+ refreshes every 20 seconds. Treat an empty Services array as "no buses running", not as an
+ error. Note also that LTA returns NextBus2 and NextBus3 as objects whose fields are all
+ empty strings when there is no such bus: treat an empty EstimatedArrival as no bus and omit
+ it from the list, rather than computing a time from it. Never emit NaN or null as a minute. In the footer, add this exact line, which is what the licence asks for, with
+ the licence address as a working link:
+ "Contains information from LTA DataMall Bus Arrival accessed on [DATE] from the Land
+ Transport Authority (LTA DataMall), which is made available under the terms of the
+ Singapore Open Data Licence version 1.0 https://data.gov.sg/open-data-licence. This is
+ an SMU course project and is not affiliated with or endorsed by the Land Transport
+ Authority." Leave my existing screens working.
+
+GUARDRAILS: Never write the key into any file, any comment, or the README. Never create a
+ variable whose name starts with VITE_. Never call datamall2.mytransport.sg from browser
+ code; every LTA call happens inside api/. Never print the key, or any part of it, in a
+ response or a log. No new npm packages. No database, no login. Do not use LTA's name or
+ logo in a way that suggests this app is official or endorsed.
+
+CONTEXT: Deployed on Vercel from GitHub. The key lives only in environment variables
+ named LTA_ACCOUNT_KEY: AI Studio's Secrets for the preview, Vercel for the live site.
+ A real response from the endpoint looks like this:
+[PASTE 15–25 LINES OF THE REAL RESPONSE HERE]</pre><button type="button" class="copybtn" data-target="p-master">Copy</button></div>
+    <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;"><span style="font-weight:700;">The last line is the one people skip.</span> Call the endpoint once from Terminal or PowerShell, as in section III or on the numbered slide in section VII, and paste what actually comes back into the CONTEXT block. <strong>An agent asked to guess the field names will invent something reasonable</strong>, and reasonable is not the same as correct: guessed paths are the single most common reason a panel shows <code>undefined</code> where a number should be.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="wiring" data-title="GitHub and Vercel the first time, click by click" data-no-frag data-takeaway="Stations B and C the first time, which you do at 09:15 to get a live URL. GitHub: stay signed in to a personal GitHub account; in AI Studio click the gear at the top right and open the GitHub tab; click Sign in to GitHub and authorise the Google AI Studio app on your personal account; choose Create new repository, name it, choose Private, and click Create GitHub repository, which is also the first push; check the tab reads In Sync. Vercel: open vercel.com/signup and click Continue with GitHub, staying on the free Hobby plan; go to vercel.com/new, or Add New then Project; under Import Git Repository click Import next to your repository, installing Vercel's GitHub app on your personal account if asked; check Framework Preset reads Vite; click Deploy; then open the address under Domains on a phone. Keep the repository in your personal account, because Hobby will not deploy a private organisation repository.">
+  <h2 class="slide-title">Stations B and C at 09:15: the first push and the first deploy</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">B &middot; GitHub, first time only</div>
+        <div class="ui-legend" style="margin-top:4px;">
+          <ol>
+            <li>Sign in to your <strong>personal</strong> GitHub account in the same browser. A free account is enough.</li>
+            <li>In AI Studio, open your app, click the gear at the top right, and open the <span class="lbl">GitHub</span> tab.</li>
+            <li>Click <span class="lbl">Sign in to GitHub</span>.</li>
+            <li>On github.com, install and authorise the <strong>Google AI Studio</strong> app on your personal account, not an organisation.</li>
+            <li>Back in the <span class="lbl">GitHub</span> tab, choose <span class="lbl">Create new repository</span>.</li>
+            <li>Type a <strong>Repository name</strong>, for example <code>bus-board</code>, and choose <strong>Private</strong>.</li>
+            <li>Click <span class="lbl">Create GitHub repository</span>. It creates the repository on <code>main</code>, and this is your first push.</li>
+            <li>Check that the tab reads <em>In Sync</em> and that your files appear on github.com.</li>
+          </ol>
+        </div>
+        <div style="font-size:10px;color:#555;margin-top:3px;line-height:1.35;">If the screen differs: GitHub&rsquo;s install page was not checked and may ask for all repositories or only selected ones; either works. If AI Studio keeps returning to <em>Sign in to GitHub</em>, uninstall the app at <code style="font-size:9.5px;">github.com/settings/installations</code> and try again.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">C &middot; Vercel, first deploy</div>
+        <div class="ui-legend" style="margin-top:4px;">
+          <ol>
+            <li>Open <code>vercel.com/signup</code> and click <span class="lbl">Continue with GitHub</span>.</li>
+            <li>Approve Vercel on GitHub&rsquo;s screen with the same personal account. Stay on the free Hobby plan and do not start a Pro trial.</li>
+            <li>Go to <code>vercel.com/new</code>, or click <span class="lbl">Add New&hellip;</span> then <span class="lbl">Project</span> on the dashboard.</li>
+            <li>If Vercel asks to connect GitHub, install its app on your personal account, choose <strong>Only select repositories</strong>, and tick your repository.</li>
+            <li>Under <strong>Import Git Repository</strong>, click <span class="lbl">Import</span> next to your repository. If it is missing, click <span class="lbl">Configure GitHub App</span> and add it.</li>
+            <li>Check that <strong>Framework Preset</strong> reads <strong>Vite</strong>. If it says Node or Express, change it to Vite. Leave <strong>Root Directory</strong> as it is.</li>
+            <li>Click <span class="lbl">Deploy</span> and wait for the build to finish.</li>
+            <li>Open the project, copy the address under <strong>Domains</strong> (<code>your-project.vercel.app</code>) and open it on a phone.</li>
+          </ol>
+        </div>
+        <div style="font-size:10px;color:#555;margin-top:3px;line-height:1.35;">Share the <strong>Domains</strong> address, not the long deployment URL, which asks visitors to log in to Vercel. If the page is blank, open the browser console: in Chrome, right-click, choose <em>Inspect</em>, then <em>Console</em>.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Keep it personal</span> The driver owns all three: the AI Studio app in a personal Google account, and the repository and the Vercel project in a <strong>personal</strong> GitHub account, not a company or group organisation, because the free Hobby plan will not deploy a private organisation repository. After this first push, every change goes out with <span class="lbl">Push Changes</span> and Vercel redeploys from <code>main</code> on its own.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="wiring" data-title="Vercel, click by click" data-no-frag data-takeaway="In Vercel: Settings, then Environment Variables in the sidebar, then the button that adds a variable, which opens the Add Environment Variable panel. Under Type choose Secret, the left card, not Config; since 24 August 2026 this choice replaces the old Sensitive switch, and some Vercel help pages still show the switch, so ignore them. A Secret cannot be read back after saving. Key takes LTA_ACCOUNT_KEY, Value takes the key, checked with the eye icon for a trailing space, and the Environments dropdown must include Production. Save. Then the step everyone forgets: the variable does not reach a build that already happened, so open Deployments, click the ellipsis on the newest one, choose Redeploy, and click Redeploy in the Redeploy to Production window. When it is Ready, open /api/health and look for keyConfigured true.">
+  <h2 class="slide-title">Station C &middot; Vercel: where the key lives, and the step everyone forgets</h2>
+  <div class="slide-body">
+    <div class="widget" data-widget="ui-mockup" data-ui="ui-vercel-env" style="padding:5px;width:70%;margin:0 auto;"><svg viewBox="0 0 720 256" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;"></svg></div>
+    <div class="ui-legend" style="columns:2;column-gap:18px;margin-top:4px;">
+      <ol>
+        <li>Open your project, click <span class="lbl">Settings</span> in the sidebar, then <span class="lbl">Environment Variables</span>.</li>
+        <li>Click the button that adds a variable. A panel titled <em>Add Environment Variable</em> opens.</li>
+        <li>Under <span class="lbl">Type</span>, click <strong>Secret</strong>, the left card, not Config. Since 24 August 2026 this replaces the old Sensitive switch; some Vercel help pages still show the switch, so ignore them.</li>
+        <li>In <span class="lbl">Key</span>, type <code>LTA_ACCOUNT_KEY</code>, spelled exactly as your code reads it.</li>
+        <li>Paste the key into <span class="lbl">Value</span>. Click the eye icon to check for a trailing space, because a Secret cannot be read back after saving.</li>
+        <li>Open the <span class="lbl">Environments</span> dropdown and make sure <strong>Production</strong> is selected. Add Preview too if you want preview links to work.</li>
+        <li>Click <span class="lbl">Save</span>. <strong>Your live site still does not have the key at this moment.</strong></li>
+        <li>Click <span class="lbl">Deployments</span> in the sidebar, then the <span class="lbl">&hellip;</span> on the newest deployment.</li>
+        <li>Choose <span class="lbl">Redeploy</span>. In the <em>Redeploy to Production</em> window, click <span class="lbl">Redeploy</span>.</li>
+        <li>When it shows Ready, open <code>/api/health</code> on your live address and check for <code>keyConfigured: true</code>.</li>
+      </ol>
+    </div>
+    <div style="font-size:10px;color:#555;margin-top:2px;">If the screen differs: the name of the button in step 2 was not checked on a signed-in page, so look for the control that adds a new variable.</div>
+    <div class="bm-callout callout-rule"><span class="bm-label">If you remember one thing</span> A saved variable and a working site are two different states. <strong>The commonest failure in this room today will be a variable saved but never redeployed.</strong> With the master prompt&rsquo;s guard, <code>/api/bus</code> answers 503 and says the key is not set; if the agent skipped the guard, the word <code>undefined</code> goes out and LTA refuses it with a 401, exactly as it would refuse a wrong key. The fix takes fifteen seconds once you know to look, and <code>keyConfigured</code> is what tells you to look there.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="health" data-title="Explainer: reading the status code" data-no-frag data-takeaway="Interactive: the status codes you will actually meet, sorted into four families. The call succeeded, your side to fix, slow down, or their side and wait. Click any code for what it means and what to do. The two to dwell on are 404 and 401. A 404 on LTA means the header never arrived at all or the address is wrong, and the address is worth reading character by character before you touch the credential. A 401 means some value did arrive and was refused, which is where a variable you never set lands if the code lets it through, because JavaScript sends the word undefined rather than nothing.">
+  <h2 class="slide-title">VI &middot; What came back, and what it is telling you</h2>
+  <div class="slide-body">
+    <div class="widget" data-widget="status-codes">
+      <div class="widget-header"><span class="explainer-badge">Prof. Roh&rsquo;s Interactive Explainer</span><span class="widget-readout" id="sc-readout">&mdash;</span></div>
+      <svg class="widget-svg" id="sc-svg" viewBox="0 0 720 140" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="widget-controls">
+        <span style="font-size:11px;color:#555;">Click a code. The four colours are four different people whose problem it is.</span>
+        <span class="widget-readout" id="sc-verdict">&mdash;</span>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:4px;">
+      <div><div class="bm-box" style="border-left:4px solid #1B3556;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>The distinction worth internalising</strong> is between a code that says <em>you asked wrongly</em> and one that says <em>we broke</em>. The first is yours to fix and usually takes a minute. The second is not yours, cannot be fixed by re-prompting, and needs your product to say something calm to its user rather than showing them a blank rectangle.</div></div>
+      <div><div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>A 200 does not mean your screen will fill.</strong> If the call succeeded and the panel is still empty, the call was never the problem: you are reading the wrong path inside a perfectly good answer. Print the raw response and compare its field names with what your code is asking for.</div></div>
+    </div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="health" data-title="The health endpoint" data-no-frag data-takeaway="A health endpoint is a second address that answers one question: is this service working right now. It reports whether the key is configured, whether LTA answered and how quickly, and when it last succeeded. It must never print the key or any part of it. Returning 200 when healthy and 503 when not lets anyone check the service without opening the app, and it turns is it broken into a question with an answer.">
+  <h2 class="slide-title">Build a second address whose only job is to answer &ldquo;is it working?&rdquo;</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div style="flex:1.05;">
+        <div class="bm-banner">What a health check reports</div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-health" style="font-size:9.2px;">GET /api/health     →  200 when healthy, 503 when not
+
+{
+  "status": "pass",
+  "time": "2026-09-09T14:22:31+08:00",
+  "checks": {
+    "keyConfigured": true,
+    "upstream": { "status": "pass", "httpCode": 200, "ms": 214 },
+    "lastGoodFetch": "2026-09-09T14:22:11+08:00"
+  }
+}</pre><button type="button" class="copybtn" data-target="p-health">Copy</button></div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;"><strong>Notice what is absent.</strong> The key itself never appears, and neither does the first four characters of it, nor its length. <code>keyConfigured: true</code> answers the only question worth asking, which is whether the variable arrived, and reveals nothing to whoever else opens this address.</div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Why this is worth ten minutes</div>
+        <div class="bm-box" style="margin-bottom:8px;font-size:11.5px;">When a teammate says &ldquo;it is broken&rdquo;, that sentence contains no information. A health endpoint turns it into a question with an answer, checkable from a phone in the corridor, without opening the app or reading any code.</div>
+        <table class="bm-table" style="font-size:11px;">
+          <tbody>
+            <tr><td style="width:104px;"><code>keyConfigured</code></td><td><strong>false</strong> means the variable is missing or you never redeployed. This one line settles the afternoon&rsquo;s commonest failure, which shows up as a 503 from the guard or, if the agent skipped it, as a 401 identical to a wrong key.</td></tr>
+            <tr><td><code>upstream</code></td><td>Tells you whether LTA answered you, which separates their bad morning from your bad code.</td></tr>
+            <tr><td><code>lastGoodFetch</code></td><td>If this is recent but the screen is empty, the fault is in the display, not the data.</td></tr>
+          </tbody>
+        </table>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:11px;padding:5px 10px 5px 14px;"><strong>One subtlety.</strong> An empty list of buses is not a failure. LTA returns nothing when a service is not running, so a health check that calls that a failure will cry wolf every night after the last bus.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> A system that cannot report on itself can only be debugged by the person who built it. <strong>Ten minutes spent on a health endpoint buys every future person, including you tomorrow, a way in</strong>&mdash;and on Day 2 the caller is an agent that uses this address as a tool, which is where this instinct becomes monitoring and evaluation.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="health" data-title="Where to look when it breaks" data-takeaway="Four places, in order. Your own health endpoint answers first. Vercel's Logs tab in the project sidebar holds runtime logs, which is where an error from your function appears; on the free plan they are kept for one hour only, and their times are UTC, eight hours behind Singapore. Build logs live somewhere else entirely, on the deployment tile, kept as long as the deployment is, and a green Ready deployment with a broken api is by definition a runtime problem, so build logs cannot help. The status pages come last: status.data.gov.sg watches twenty-three services but not bus arrivals, so all-green there proves nothing, and DataMall announces planned maintenance only as a banner on its own home page. A 504 means Vercel's five-minute timer fired only when it carries the code FUNCTION_INVOCATION_TIMEOUT; without it, it is probably LTA's own 504 relayed by your function.">
+  <h2 class="slide-title">Where to look when it breaks, in the order that saves time</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:11.5px;">
+      <thead><tr><th style="width:30px;"></th><th style="width:170px;">Look here</th><th>What it tells you, and what it does not</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><strong>Your own <code>/api/health</code></strong></td><td>Open it in the address bar. It answers the two questions that cause most failures: did the key arrive, and did LTA answer. Start here because it costs three seconds.</td></tr>
+        <tr><td><strong>2</strong></td><td><strong>Vercel &rarr; <span class="lbl">Logs</span></strong></td><td>The <strong>runtime</strong> logs, in the project sidebar. Every row shows its own status code, and Vercel colours the two failure families for you: amber for anything in the 400s, which is your request, and red for the 500s, which is the server. <strong>On the free plan these are kept for one hour</strong>, so look before the break, not after it. Times in Logs are UTC, eight hours behind Singapore.</td></tr>
+        <tr><td><strong>3</strong></td><td><strong>Build logs</strong>, a different place</td><td>Reached from the deployment tile, not the Logs tab, and kept for as long as that deployment is kept, at least thirty days on the free plan. They stop the instant the build finishes, so <strong>they can never explain a broken <code>/api</code></strong>. A green deployment serving a failing function is a runtime problem by definition, and the log you can still see is usually not the one you need.</td></tr>
+        <tr><td><strong>4</strong></td><td><strong>The status pages</strong></td><td><code>status.data.gov.sg</code> and <code>vercel-status.com</code>. Use them last, and read the first one carefully: you will see a wall of green covering twenty-three services, but <strong>its LTA section is just Traffic Images and Taxi Availability</strong>, and bus arrivals are not watched at all, so none of that green says anything about your problem. There is no live status page for DataMall itself; it announces planned maintenance only as a banner on <code>datamall.lta.gov.sg</code>.</td></tr>
+      </tbody>
+    </table>
+    <div class="two-col">
+      <div><div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;"><strong>Two error names worth recognising.</strong> A 500 from your function appears as <code>FUNCTION_INVOCATION_FAILED</code>, which means your code threw. A 504 with the code <code>FUNCTION_INVOCATION_TIMEOUT</code> means your function ran for <strong>five whole minutes</strong> without answering: usually a missing response, or a call with no timeout. A 504 without that code is probably LTA&rsquo;s own, relayed by your function.</div></div>
+      <div><div class="bm-box" style="border-left:4px solid #107850;font-size:11px;padding:5px 10px 5px 14px;"><strong>The blank white page.</strong> If the deployment is green and the page is blank, nothing failed to build: something failed while running in the browser. That is the browser console, not Vercel, which you met at 09:15 when the screen was first deployed.</div></div>
+    </div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="health" data-title="Explainer: why you cache" data-no-frag data-takeaway="Interactive: with no cache, every refresh by every person is its own call to LTA, and a room of 30 generates over a hundred calls a minute. Caching in the function for twenty seconds, which is exactly LTA's own refresh interval, takes that to three calls a minute for that team's app, and costs nobody anything they could notice. Drag the cache length and the room size to see the arithmetic. Vercel does no caching by default, so this is something you add on purpose. To prove it works, read x-vercel-cache: MISS first, HIT inside twenty seconds, STALE between twenty and sixty, and MISS again after a quiet minute.">
+  <h2 class="slide-title">Why you cache, and why twenty seconds is the right number</h2>
+  <div class="slide-body">
+    <div class="widget" data-widget="cache-window">
+      <div class="widget-header"><span class="explainer-badge">Prof. Roh&rsquo;s Interactive Explainer</span><span class="widget-readout" id="cw-readout">&mdash;</span></div>
+      <svg class="widget-svg" id="cw-svg" viewBox="0 0 720 90" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="widget-controls">
+        <label>cache for <input type="range" id="cw-cache" min="0" max="60" step="5" value="20"> <span class="ctrl-val" id="cw-cache-val">20 s</span></label>
+        <label>room of <input type="range" id="cw-students" min="1" max="40" step="1" value="30"> <span class="ctrl-val" id="cw-students-val">30</span></label>
+        <span class="widget-readout" id="cw-verdict">&mdash;</span>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:4px;">
+      <div><div class="bm-box" style="border-left:4px solid #1B3556;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>Vercel caches no function response by default.</strong> Your static files are cached for you, but an answer from <code>/api</code> is not, so a page that does nothing special calls LTA on every single view. Note also that every redeploy starts the cache empty, because Vercel keeps cached answers with the deployment that produced them, so an afternoon of frequent redeploys is an afternoon of misses. One line in your function fixes it: <code>Cache-Control: s-maxage=20, stale-while-revalidate=40</code>. The first number says how long a copy stays fresh, and the second lets a visitor have the slightly stale copy instantly while a new one is fetched behind them.</div></div>
+      <div><div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;"><strong>How to prove it is working.</strong> Vercel removes <code>s-maxage</code> and <code>stale-while-revalidate</code> before the response reaches the browser, so you will never find them in the developer tools and their absence is not a bug. Read <code>x-vercel-cache</code> instead: <code>MISS</code> on the first call, <code>HIT</code> inside twenty seconds, <code>STALE</code> between twenty and sixty, which means you got the stored copy while a fresh one was fetched, and <code>MISS</code> again after a quiet minute. <strong>All of these mean the cache is working.</strong> Keep the developer tools&rsquo; <em>Disable cache</em> box unticked.</div></div>
+    </div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="build" data-title="The group build" data-no-frag data-takeaway="Each group ships one product, and the core build runs from 14:30 to 15:40, seventy minutes. Every group ships the same core: a live arrival board for a stop outside this building, fed through your own function, with a health endpoint and the attribution line. Then, from 16:00 to 17:15, each group takes it somewhere of its own by joining a second Singapore service. Proof at the 15:40 checkpoint is that the production URL opens on a phone that is not the driver's and shows minutes that match the physical bus stop downstairs.">
+  <h2 class="slide-title">VII &middot; Group build: make the screen tell the truth <span style="font-size:13px;color:#8899AA;font-weight:400;">&middot; 14:30&ndash;15:40 &middot; one product per group</span></h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">The core, which every group ships</div>
+        <table class="bm-table" style="margin-top:6px;font-size:11.5px;">
+          <tbody>
+            <tr><td style="width:26px;"><strong>1</strong></td><td>An arrival board for <strong>stop 04121</strong>, listing each service with the next two buses in minutes.</td></tr>
+            <tr><td><strong>2</strong></td><td>Every LTA call made <strong>inside <code>/api</code></strong>, with the key in a Vercel <strong>Secret</strong> variable and in AI Studio&rsquo;s Secrets panel for the preview, and nowhere else.</td></tr>
+            <tr><td><strong>3</strong></td><td>A working <strong><code>/api/health</code></strong> that reports whether the key arrived and whether LTA answered, and never prints the key.</td></tr>
+            <tr><td><strong>4</strong></td><td>A <strong>cache of twenty seconds</strong> on the bus response, and the attribution line in the footer.</td></tr>
+            <tr><td><strong>5</strong></td><td>Something sensible on screen when a service has <strong>no buses running</strong>, because an empty answer is normal and not an error.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Then take it somewhere of your own</div>
+        <div class="bm-box" style="margin-bottom:8px;font-size:11.5px;">A bus board is where every group starts, not where any group stops. Join a <strong>second Singapore service</strong> and you have a product rather than a readout. The next slide lists the combinations that work, and each group should pick a different one so that show and tell is worth sitting through. You build the join from 16:00 to 17:15, after the core is live.</div>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:11px;padding:5px 10px 5px 14px;"><strong>Roles at the table.</strong> One <strong>driver</strong> with the laptop and the accounts: the AI Studio app, the GitHub repository and the Vercel project all belong to the driver. One <strong>navigator</strong> reading this deck aloud and calling the next step. Everyone else on phones, opening the URL and reading the first red line of any error out loud. Swap who types once, halfway, on the same laptop and accounts.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">The checkpoint at 15:40</span> Your production URL opens on <strong>a phone that is not the driver&rsquo;s</strong>, and the minutes on the screen match the bus stop downstairs. Share the address listed under <span class="lbl">Domains</span> in Vercel, <code>your-project.vercel.app</code>, not the long deployment URL, which asks visitors to log in to Vercel. <strong>Walk out and look</strong>: that comparison, made with your own eyes, is the entire point of choosing buses over something cleverer.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="build" data-title="Pick your second service" data-no-frag data-takeaway="There are eight combinations and each group takes a different one, each joining LTA bus arrivals to a second Singapore service so the product answers a question a bus board alone cannot. Leave now or wait, joining arrivals with the rain forecast for the City area. The commute affordability lens with SingStat, in 2024 dollars. A carpark or bus decision. A door-to-door planner with OneMap routing, whose token expires after three days. Each group takes a different one so the show and tell is worth watching, and each has a named user and a question the screen answers.">
+  <h2 class="slide-title">Pick a second service, and turn a readout into a product</h2>
+  <div class="slide-body">
+    <p data-frag-skip style="margin-bottom:4px;">One per group, and no two groups take the same one. Each of these joins today&rsquo;s bus data to a second service so the screen answers something a bus board on its own cannot.</p>
+    <div class="table-scroll">
+      <table class="bm-table" style="font-size:11px;">
+        <thead><tr><th style="width:30px;">Gp</th><th style="width:150px;">The product</th><th style="width:120px;">Second service</th><th>The question your screen answers</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td><strong>Leave now, or wait</strong></td><td>Real-time weather <span class="chip gold">6 / 10s</span></td><td>The bus is nine minutes away and the forecast for <code>City</code>, which is the area SMU sits in, says rain. Do I walk out now or finish my coffee?</td></tr>
+          <tr><td><strong>2</strong></td><td><strong>Bus or carpark</strong></td><td>Carpark availability <span class="chip">LTA</span></td><td>I am driving in. Are there lots free near campus, or should I park further out and take the bus in?</td></tr>
+          <tr><td><strong>3</strong></td><td><strong>Getting through town</strong></td><td>Traffic incidents <span class="chip">LTA</span></td><td>Something is blocking the road my bus takes. What is happening between here and where I am going?</td></tr>
+          <tr><td><strong>4</strong></td><td><strong>Door to door</strong></td><td>OneMap routing <span class="chip red">3-day token</span></td><td>I am at this postal code. Which stop should I walk to, how long is the walk, and will I make that bus? <strong>Register at 09:00.</strong> OneMap needs an account, and registration has a CAPTCHA and an email step, so allow about fifteen minutes; it cannot be done inside the build. The token lasts three days and does not renew itself, so write down how to renew it, by signing in again with the same email and password, before you need to.</td></tr>
+          <tr><td><strong>5</strong></td><td><strong>The commute lens</strong></td><td>SingStat CPI <span class="chip green">no key</span></td><td>What does this commute cost me a month, and what is that in 2024 dollars, which is the base year SingStat&rsquo;s consumer price index now uses?</td></tr>
+          <tr><td><strong>6</strong></td><td><strong>Where should I live</strong></td><td>HDB resale <span class="chip green">no key</span></td><td>For my budget, which towns can I afford, and how long is the bus from each of them to here?</td></tr>
+          <tr><td><strong>7</strong></td><td><strong>The campus board</strong></td><td>Several stops at once</td><td>One screen for a lobby: every stop around SMU, side by side, refreshing itself, readable from three metres.</td></tr>
+          <tr><td><strong>8</strong></td><td><strong>Your own</strong></td><td>Any from the card</td><td>Bring a product idea your group cares about, perhaps one from your own work, and give it one live feed. Name the user before you prompt.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> A single feed makes a readout, and a <em>join</em> makes a product. <strong>The value is rarely in the data itself; it is in the question that only appears once two sources sit side by side</strong>, which is the whole reason your organisation will care about any of this.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="build" data-title="The build sequence" data-no-frag data-takeaway="The sequence has nine steps and the core build gives you seventy minutes for them, 14:30 to 15:40: check the key is in your inbox; call the endpoint once from Terminal or PowerShell with curl and keep the real response; paste the master prompt into AI Studio's chat panel with that response in the context block; check both files landed in api/ at the root; push to GitHub from the GitHub tab in AI Studio's Settings; add the variable in Vercel as a Secret and redeploy; open the health endpoint before the app; then open the app on a phone by minute 55; then walk downstairs and compare. Every step has a proof, and the last proof is a bus.">
+  <h2 class="slide-title">The sequence, and the proof at each step</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:11px;">
+      <thead><tr><th style="width:28px;"></th><th style="width:78px;">Minutes</th><th>Do</th><th style="width:172px;">Proof before you move on</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td>0&ndash;5</td><td>Check that the LTA key you requested at 09:00 is in your inbox or spam. If it is not there, request it now. The driver&rsquo;s key is enough to start, because it goes only into the driver&rsquo;s own accounts, but <strong>everybody requests their own</strong> before they leave today.</td><td>the key is in your inbox</td></tr>
+        <tr><td><strong>2</strong></td><td>5&ndash;15</td><td><strong>Call the endpoint once from Terminal</strong> (Mac) or <strong>PowerShell</strong> (Windows) with <code>curl</code>, following the numbered steps on the next slide, and keep what comes back. <strong>The address bar cannot do this</strong>, because it cannot send a header, so it always answers 404, and a console <code>fetch</code> from any other site is blocked by the browser.</td><td><code>HTTP status: 200</code>, and the JSON saved where you can paste from</td></tr>
+        <tr><td><strong>3</strong></td><td>15&ndash;28</td><td>Paste the master prompt into your app&rsquo;s chat panel in AI Studio, with that real response in the <strong>CONTEXT</strong> block at the bottom.</td><td>it writes <code>api/bus.js</code> and <code>api/health.js</code></td></tr>
+        <tr><td><strong>4</strong></td><td>28&ndash;31</td><td>Check the <strong>file list</strong>: both files in <code>api/</code> at the root, not inside <code>src</code>. Check the <strong>Code</strong> tab: the key read from <code>process.env</code>, never typed.</td><td>you have read the four lines that matter</td></tr>
+        <tr><td><strong>5</strong></td><td>31&ndash;35</td><td>Click the gear (<span class="lbl">Settings</span>) at the top right and open the <span class="lbl">GitHub</span> tab. Check the status reads <span class="lbl">AI Studio Changes Ready</span> and that no <code>.env</code> file is in the list, then click <span class="lbl">Push Changes</span>.</td><td>the status reads <span class="lbl">In Sync</span> and the files appear on the repository page</td></tr>
+        <tr><td><strong>6</strong></td><td>35&ndash;43</td><td>In Vercel, open <span class="lbl">Settings</span> &rarr; <span class="lbl">Environment Variables</span> and add a variable: <span class="lbl">Type</span> <strong>Secret</strong>, not Config; <span class="lbl">Key</span> <code>LTA_ACCOUNT_KEY</code>; <span class="lbl">Value</span> your key; <span class="lbl">Environments</span> including Production. Click <span class="lbl">Save</span>, <strong>then redeploy</strong>: <span class="lbl">Deployments</span> &rarr; <span class="lbl">&hellip;</span> on the newest one &rarr; <span class="lbl">Redeploy</span>.</td><td>a new deployment, started after you saved, showing Ready</td></tr>
+        <tr><td><strong>7</strong></td><td>43&ndash;45</td><td>Open <strong><code>/api/health</code> before you open the app.</strong> It is a smaller thing to be wrong.</td><td><code>keyConfigured: true</code></td></tr>
+        <tr><td><strong>8</strong></td><td>45&ndash;55</td><td>Open the app itself, on a phone, at the address under <span class="lbl">Domains</span>. <strong>Aim for a live URL by minute 55</strong>, which is 15:25.</td><td>minutes on a screen you did not type</td></tr>
+        <tr><td><strong>9</strong></td><td>55&ndash;70</td><td><strong>Slack, deliberately left empty.</strong> If something is broken this is when you fix it, and most groups will need it at least once. If nothing is broken, <strong>go downstairs to stop 04121</strong> and compare your screen with the physical display before the 15:40 checkpoint.</td><td>they agree, or you know why not</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;margin-bottom:6px;"><strong>Your second service is not in these seventy minutes.</strong> Get the bus board live first, because a working board with one source beats a half-wired board with two. Add the join from 16:00 to 17:15, and check it in the AI Studio preview before every push, because each push to GitHub goes straight to your live site.</div>
+    <div class="bm-callout callout-rule"><span class="bm-label">If you are stuck at minute 45</span> Open the health endpoint and read it aloud to your group. <strong>Nearly every failure this afternoon reduces to one of two sentences</strong>: the variable is not on the running site, which means you did not redeploy, or the value itself is wrong, which usually means a stray space when you pasted it. <strong>Do not guess between them from the status code</strong>, because if the agent skipped the 503 guard in the master prompt, both come back from LTA as a 401: open <code>/api/health</code> and read <code>keyConfigured</code>, which is the whole reason you built it.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="build" data-title="Call the endpoint once" data-no-frag data-takeaway="Before the agent writes any code, call Bus Arrival once yourself so you see the real field names. On a Mac, open Terminal, read the key into a variable with read -s so it never shows on screen, and run the curl line with the AccountKey header. On Windows, do the same in PowerShell with Read-Host and curl.exe, not curl. HTTP status 200 with JSON above it means it worked; 401 means a wrong key, 404 a typo in the header or the address, and 403 a missing or wrongly capitalised BusStopCode. Paste the JSON into the CONTEXT block of the master prompt, then clear the variable. The address bar cannot send the header, and the browser blocks a console fetch from any other site, which is why this runs in Terminal.">
+  <h2 class="slide-title">Calling the endpoint once, from Terminal or PowerShell</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">On a Mac: Terminal</div>
+        <div class="ui-legend" style="margin-top:6px;">
+          <ol>
+            <li>Press <span class="kbd">Cmd</span>+<span class="kbd">Space</span>, type <code>Terminal</code> and press <span class="kbd">Return</span>.</li>
+            <li>Type <code>read -s LTA_KEY</code> and press <span class="kbd">Return</span>.</li>
+            <li>Paste your AccountKey with <span class="kbd">Cmd</span>+<span class="kbd">V</span> and press <span class="kbd">Return</span>. Nothing appears on screen, and that is expected.</li>
+            <li>Click <span class="lbl">Copy</span> on the line below, paste it into Terminal and press <span class="kbd">Return</span>.</li>
+            <li>Read the last line. <code>HTTP status: 200</code>, with text above it that starts <code>{"odata.metadata"</code>, means it worked.</li>
+            <li>Select the JSON, copy it with <span class="kbd">Cmd</span>+<span class="kbd">C</span> and paste it into the <strong>CONTEXT</strong> block of the master prompt.</li>
+            <li>Type <code>unset LTA_KEY</code> and press <span class="kbd">Return</span>, or close the window.</li>
+          </ol>
+        </div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-curl-mac" style="font-size:9.4px;">curl -sS -w "\nHTTP status: %{http_code}\n" -H "AccountKey: $LTA_KEY" "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121"</pre><button type="button" class="copybtn" data-target="p-curl-mac">Copy</button></div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">On Windows: PowerShell</div>
+        <div class="ui-legend" style="margin-top:6px;">
+          <ol>
+            <li>Press the <span class="kbd">Windows</span> key, type <code>PowerShell</code> and open <span class="lbl">Windows PowerShell</span> or <span class="lbl">Terminal</span>.</li>
+            <li>Type <code>$k = Read-Host "Paste LTA key"</code> and press <span class="kbd">Enter</span>.</li>
+            <li>Paste your AccountKey with a right-click or <span class="kbd">Ctrl</span>+<span class="kbd">V</span> and press <span class="kbd">Enter</span>.</li>
+            <li>Click <span class="lbl">Copy</span> on the line below, paste it into PowerShell and press <span class="kbd">Enter</span>. It says <code>curl.exe</code>, not <code>curl</code>, because in Windows PowerShell <code>curl</code> is a different command that rejects these options.</li>
+            <li>Read the last line. <code>HTTP status: 200</code>, with JSON above it, means it worked.</li>
+            <li>Select the JSON, copy it with <span class="kbd">Ctrl</span>+<span class="kbd">C</span> and paste it into the <strong>CONTEXT</strong> block of the master prompt.</li>
+            <li>Type <code>Remove-Variable k</code> and press <span class="kbd">Enter</span>, or close the window.</li>
+          </ol>
+        </div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-curl-win" style="font-size:9.4px;">curl.exe -sS -w "\nHTTP status: %{http_code}\n" -H "AccountKey: $k" "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121"</pre><button type="button" class="copybtn" data-target="p-curl-win">Copy</button></div>
+        <div style="font-size:10.5px;color:#555;">If your screen differs and PowerShell answers with a red error about a parameter, check that the line starts with <code>curl.exe</code>.</div>
+      </div>
+    </div>
+    <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;margin-bottom:6px;"><strong>If the last line is not 200.</strong> <code>401</code> means the key is wrong, so repeat steps 2 to 4 and paste it again. <code>404</code> means a typo in the header name or the address. <code>403</code>, with an Access Denied page, means <code>BusStopCode</code> is missing or wrongly capitalised, and it must be spelled exactly that way.</div>
+    <div class="bm-callout callout-rule"><span class="bm-label">Why Terminal and not the browser</span> The address bar cannot send a header, so it always answers 404, and the browser blocks a console <code>fetch</code> from any other site. <strong>Terminal is the simplest place to make this call by hand.</strong> The key never appears in the command itself, which is why step 2 reads it into a variable first. You do this once, to learn the field names; after that, only your function calls LTA.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="build" data-title="What you are aiming at" data-no-frag data-takeaway="The target: a panel showing each service and the next two buses in minutes, with the load indicator, refreshing itself, and the attribution line in the footer. Underneath sits the whole chain: your page calls your function, your function adds the key and calls LTA, the answer is cached for twenty seconds and simplified into minutes. The attribution line, with the access date and a link to the Singapore Open Data Licence, is copyable from this slide.">
+  <h2 class="slide-title">What you are aiming at, by 15:40</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div style="flex:0.95;">
+        <div class="busmock">
+          <div class="bm-head">
+            <span class="bm-stop">SMU &middot; Stamford Rd</span>
+            <span class="bm-code">04121 &middot; updated 8s ago</span>
+          </div>
+          <div class="bm-row"><span class="bm-svc">7</span><span class="bm-mins soon">Arriving</span><span class="bm-load">seats available &middot; double deck</span></div>
+          <div class="bm-row"><span class="bm-svc">14</span><span class="bm-mins">4 min</span><span class="bm-load">standing available</span></div>
+          <div class="bm-row"><span class="bm-svc">16</span><span class="bm-mins">9 min</span><span class="bm-load">seats available</span></div>
+          <div class="bm-row"><span class="bm-svc">111</span><span class="bm-mins">12 min</span><span class="bm-load">seats available &middot; wheelchair</span></div>
+          <div class="bm-row"><span class="bm-svc">175</span><span class="bm-mins">&mdash;</span><span class="bm-load">not running at this hour</span></div>
+          <div class="bm-foot">Contains information from LTA DataMall Bus Arrival, accessed [today's date] from the Land Transport Authority, which is made available under the terms of the Singapore Open Data Licence version 1.0, data.gov.sg/open-data-licence</div>
+        </div>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">The attribution line, ready to paste</div>
+        <div class="prompt-wrap"><pre class="bm-code prompt" id="p-attrib" style="font-size:9.4px;">Contains information from LTA DataMall Bus Arrival
+accessed on [DATE] from the Land Transport Authority
+(LTA DataMall), which is made available under the terms
+of the Singapore Open Data Licence version 1.0
+https://data.gov.sg/open-data-licence.
+This is an SMU course project and is not affiliated with
+or endorsed by the Land Transport Authority.</pre><button type="button" class="copybtn" data-target="p-attrib">Copy</button></div>
+        <div class="bm-box" style="border-left:4px solid #b53a4a;font-size:11px;padding:5px 10px 5px 14px;">Replace <code>[DATE]</code> with the day you called LTA, or ask the agent to show the current date there. The licence requires a visible source notice with a link to the licence. The last sentence is not politeness either. <strong>The licence forbids suggesting official status or LTA endorsement</strong>, and a bus app is exactly the kind of thing a passer-by would assume is official unless told otherwise, so choose an app name that is clearly your own.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-principle"><span class="bm-label">Look at the last row</span> A service with no buses running shows a plain sentence rather than a zero, a blank, or an error. <strong>Deciding what your product says when it has nothing to say is design work</strong>, not an edge case to handle later, and it is the difference between a demonstration and something a person could actually rely on.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="summary" data-title="Failures of wiring" data-takeaway="Six failures that all come from the same place, which is the path the key takes. A 404 from LTA means the header never arrived, arrived empty or misnamed, or the address is wrong; plain http is not a cause, because LTA redirects it to https. A 403 Access Denied page means the BusStopCode parameter is missing or wrongly capitalised. A 401 means some value arrived and was refused, and both a wrong key and an unset variable can land there, because without the 503 guard JavaScript sends the word undefined rather than nothing. A 404 from your own /api/bus means Vercel never built a function there: the file sits inside src/ or is misnamed, the Framework Preset is not Vite, or the live deployment is older than your push. A key visible in the deployed page means it was typed into a file or given a VITE_ name. A green deployment showing a blank page means the build succeeded and the code failed while running.">
+  <h2 class="slide-title">When it breaks, part one: the failures of wiring</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:11.5px;">
+      <thead><tr><th style="width:190px;">What you see</th><th style="width:360px;">What is actually wrong</th><th>The boundary it teaches</th></tr></thead>
+      <tbody>
+        <tr><td><code>404</code> from LTA at an address you believe is right</td><td>The header never arrived, its name is misspelled (<code>Account-Key</code>), or the path is mis-cased. Code that sends an empty string for a missing variable also lands here. Plain <code>http</code> is not a cause: LTA redirects it to <code>https</code>.</td><td>read the address one character at a time before you touch the key</td></tr>
+        <tr><td><code>403</code> with an HTML page saying Access Denied</td><td>The <code>BusStopCode</code> parameter is missing or wrongly capitalised. It must be spelled <code>BusStopCode</code> exactly.</td><td>the parameter name is case-sensitive, just like the path</td></tr>
+        <tr><td><code>404</code> from your own <code>/api/bus</code></td><td>Vercel never built a function there. The file is inside <code>src/</code> or misnamed, the Framework Preset is not Vite, or the live deployment is older than your push.</td><td>check the file tree on GitHub: if <code>api/</code> is not at the root there, no amount of redeploying will help</td></tr>
+        <tr><td><code>401</code> with an empty body</td><td><strong>Two faults land here and look identical.</strong> Either the value is wrong, usually a trailing space from the email, or the variable was never set, the agent skipped the 503 guard, and your code sent the word <code>undefined</code>, because that is what JavaScript does with a missing value.</td><td>read <code>keyConfigured</code> from your health endpoint; it is the only thing that separates them</td></tr>
+        <tr><td>The key is readable in the deployed page</td><td>It was typed into a file, or it was given a name beginning <code>VITE_</code>.</td><td>the prefix decides the audience, and <code>VITE_</code> means everyone</td></tr>
+        <tr><td>Green deployment, blank white page</td><td>The build succeeded and the code failed while running in the browser.</td><td>a build log cannot explain a runtime failure, so open the browser console</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-callout callout-rule"><span class="bm-label">Read the two together</span> A 404 and a 401 look equally like failure and point in different directions. <strong>The 404 is about the address and the header; the 401 is about the value inside the header.</strong> Neither tells you whether you forgot to redeploy, which is why the health endpoint you built is the first thing to open rather than the last.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="summary" data-title="Failures of data and time" data-takeaway="Five failures that are about the answer rather than the plumbing. A 200 with an empty panel means you are reading a field name that does not exist, and guessed paths are the top cause. A four-digit stop code means the leading zero was dropped. A 504 marked FUNCTION_INVOCATION_TIMEOUT means your own function ran for five minutes without answering, usually a missing response or a call with no timeout; a 504 without that code is probably LTA's own, passed through by your function. No buses after midnight is not a failure at all. Empty logs the next morning means you looked after the hour that Vercel keeps them, and the times in Logs are UTC, eight hours behind Singapore.">
+  <h2 class="slide-title">When it breaks, part two: the failures of data and of time</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:12px;">
+      <thead><tr><th style="width:200px;">What you see</th><th style="width:250px;">What is actually wrong</th><th>The boundary it teaches</th></tr></thead>
+      <tbody>
+        <tr><td>The panel is empty, but the call returned <code>200</code></td><td>You are reading a path that does not exist inside a perfectly good answer.</td><td>print the real response, because guessed field names are the top cause</td></tr>
+        <tr><td>Only four digits in the stop code</td><td>The leading zero was dropped, because community sites display the code stripped.</td><td>an identifier is a string, and never a number</td></tr>
+        <tr><td>The function returns <code>504</code></td><td>If the error page or the Logs row says <code>FUNCTION_INVOCATION_TIMEOUT</code>, your function ran for five minutes without answering, usually a missing response or a call with no timeout. A 504 without that code is probably LTA&rsquo;s own, passed through by your function.</td><td>read the error code before you blame LTA: only that name means your own function hung</td></tr>
+        <tr><td>Nothing listed after midnight</td><td>Nothing is wrong. Services are not running, and LTA answers with an empty list.</td><td>an empty answer is not an error, and your screen has to say so in words</td></tr>
+        <tr><td>The logs are empty the next morning</td><td>Runtime logs are kept for one hour on the free plan. Their times are in UTC, eight hours behind Singapore.</td><td>look while it is broken, rather than after the break</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-callout callout-principle"><span class="bm-label">Show and tell</span> Every URL goes on the screen at 17:15. <strong>Groups whose build broke present the failure</strong>: name what you saw, then name the boundary it turned out to be. Those are the most useful two minutes of the day for everybody else in the room.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="summary" data-title="What to take away" data-takeaway="Seven questions and their answers: what the screen you shipped at 10:30 was missing; what an API is; why the request must travel through your own function; where a key lives; what LTA does when it is unhappy; how you know the service is working; and what makes this a product rather than a readout. The pattern learned today on bus arrivals is the same pattern every keyed service uses, and on Day 2 your /api functions become the tools an agent calls.">
+  <h2 class="slide-title">What to take away</h2>
+  <div class="slide-body">
+    <table class="bm-table" style="font-size:11.5px;">
+      <thead><tr><th style="width:200px;">Question</th><th>The answer this session gives you</th></tr></thead>
+      <tbody>
+        <tr><td><strong>What was the 10:30 screen missing?</strong></td><td>Data that is true now, something that computes, and a private place for a secret. The rest of the day added the first and the third; the computing half is the model, and tomorrow&rsquo;s agent reaches it through this identical pattern.</td></tr>
+        <tr><td><strong>What is an API?</strong></td><td>An address that answers in a format a program can read. Four parts go out: address, parameters, headers, method. Two come back: a status code and a body.</td></tr>
+        <tr><td><strong>Why route through my own function?</strong></td><td>Two reasons at once. The browser will not read a response from a service that does not permit it, and a key in the browser is a published key. The detour solves both.</td></tr>
+        <tr><td><strong>Where does the key live?</strong></td><td>In a Vercel environment variable whose Type is Secret, read with <code>process.env</code> inside <code>/api</code>, and in AI Studio&rsquo;s Secrets panel for the preview. Never in the code, never in the repository, never in a prompt, never behind a <code>VITE_</code> name.</td></tr>
+        <tr><td><strong>What does LTA do when it is unhappy?</strong></td><td><code>404</code> when the header never arrived or the address is wrong, <code>403</code> when <code>BusStopCode</code> is missing or mis-cased, <code>401</code> when some value arrived and was refused. A missing variable lands on 401 too when the code has no 503 guard, because JavaScript sends the word <code>undefined</code> rather than nothing, so your own health endpoint is what tells a wrong key from a missing one.</td></tr>
+        <tr><td><strong>How do I know it is working?</strong></td><td>A health endpoint you built, checked before the app; then the Logs tab within the hour; then the status pages, remembering that they do not watch bus arrivals.</td></tr>
+        <tr><td><strong>When is it a product?</strong></td><td>When two sources meet and answer a question neither could alone, and when the screen still says something sensible at one in the morning with no buses running.</td></tr>
+      </tbody>
+    </table>
+    <div class="bm-callout callout-principle"><span class="bm-label">Principle</span> You have now built the shape that every keyed service in this course will use: a credential on the server, a function in the middle, a page that only ever talks to its own address. <strong>Tomorrow a model sits in front of those functions and decides which one to call</strong>, and that is an agent: Day 2 builds it with LangChain, LangGraph and MCP.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide" data-section="summary" data-title="Before Day 2" data-takeaway="Three things tonight, before Day 2. Keep the bus page alive and change one thing on it, pushed from AI Studio, so the loop from prompt to push to live URL stays warm. Bring the production URL and your own LTA key: check that /api/health still reports keyConfigured true, and if your group ran on the driver's key today, request your own, because LTA's terms ask each holder to keep a key secure and confidential. Come back at 09:00, when Day 2 turns your /api functions into the tools an agent calls, built with LangChain, LangGraph and MCP.">
+  <h2 class="slide-title">Tonight, before Day 2</h2>
+  <div class="slide-body">
+    <div class="two-col">
+      <div>
+        <div class="bm-banner">What to do tonight</div>
+        <table class="bm-table" style="margin-top:6px;font-size:11.5px;">
+          <tbody>
+            <tr><td style="width:26px;"><strong>1</strong></td><td><strong>Keep the page alive and change one thing on it.</strong> Add a second stop, or make it say something friendlier when nothing is running, then push from AI Studio and watch Vercel deploy it. The point is that the loop from prompt to push to live URL stays warm in your hands. If LTA stops answering, look for a maintenance banner on the <code>datamall.lta.gov.sg</code> home page, which is where LTA announces planned outages.</td></tr>
+            <tr><td><strong>2</strong></td><td><strong>Bring the URL and the key.</strong> Note the production address listed under Domains (<code>your-project.vercel.app</code>) and check that <code>/api/health</code> still says <code>keyConfigured: true</code>. If your group ran on the driver&rsquo;s key today, request your own tonight: LTA&rsquo;s terms ask you to keep a key secure and confidential, so do not share it, even with teammates.</td></tr>
+            <tr><td><strong>3</strong></td><td><strong>Come back at 09:00 for Day 2.</strong> You build agents with <strong>LangChain, LangGraph and MCP</strong>, and the <code>/api</code> functions you deployed today become the tools those agents call. Check tonight that <code>/api/bus</code> still answers, because tomorrow&rsquo;s agent calls it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="bm-banner bm-banner-teal">Why the product came before the agents</div>
+        <div class="bm-box" style="margin-bottom:8px;">An agent is a model that decides which tool to call and what to pass it. Every one of those tools is a function like the one you deployed today: a key on the server, a request to a service, and an answer returned in a format a program can read. <strong>You have now built that end to end once</strong>, with an agent writing the code and you checking what it wrote.</div>
+        <div class="bm-box" style="border-left:4px solid #107850;font-size:11.5px;padding:6px 10px 6px 14px;">Tomorrow&rsquo;s frameworks assume you already know what a key is, where it lives, what a function does, and how to tell whether something is working. You learned all four today, on data you could check by walking downstairs.</div>
+      </div>
+    </div>
+    <div class="bm-callout callout-rule"><span class="bm-label">One last thing</span> Walk past stop 04121 on your way out and look at the display. <strong>Your screen and that screen are now reading the same feed</strong>, which was not true of the screen you shipped at 10:30.</div>
+  </div>
+  <div class="bm-footer"><span>Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build</span><span>Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business</span></div>
+</div>
+
+<div class="slide slide-thanks">
+  <h1>Thank You for Being Curious</h1>
+  <a class="byline" href="https://talktoroh.com">Prof. Sungjong Roh, PhD</a>
+  <div class="email">Building Autonomous AI Agents &middot; Day 2 tomorrow at 09:00 &middot; TalkToRoh.com</div>
+  <div class="footnote">Academic Director, MBAI &middot; Lee Kong Chian School of Business &middot; SMU &middot; Day 1 &middot; September 2026 Cohort</div>
+</div>
+
+</div>
+
+<div class="help-hint">Press <kbd>?</kbd> for shortcuts · <kbd>F</kbd> step-reveal · <kbd>A</kbd> all-at-once · <kbd>S</kbd> presenter</div>
+
+<div class="help-overlay" id="helpOverlay" role="dialog" aria-modal="true">
+  <div class="help-overlay-card">
+    <button class="help-close" aria-label="Close">&times;</button>
+    <h3>Navigation &amp; shortcuts</h3>
+    <div class="help-row"><span class="help-keys"><kbd>&rarr;</kbd> <kbd>Space</kbd></span><span class="help-desc">Reveal next point &middot; then next slide</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>&larr;</kbd></span><span class="help-desc">Hide last point &middot; then previous slide</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Home</kbd> <kbd>End</kbd></span><span class="help-desc">First / last slide</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>1</kbd>&ndash;<kbd>9</kbd></span><span class="help-desc">Jump to section</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>F</kbd></span><span class="help-desc">Fullscreen &middot; content revealed point-by-point</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>A</kbd></span><span class="help-desc">Fullscreen &middot; everything shown, move slide-by-slide</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>S</kbd></span><span class="help-desc">Presenter view (current + next + timer)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Esc</kbd></span><span class="help-desc">Close / exit mode</span></div>
+    <p class="help-footnote">Building Autonomous AI Agents · Day 1 · Full End-to-End Build · SMU</p>
+  </div>
+</div>
+
+<div class="slideshow-arrows">
+  <button class="ss-prev" aria-label="Previous">&larr;</button>
+  <span class="slide-counter">1 / 1</span>
+  <button class="ss-next" aria-label="Next">&rarr;</button>
+</div>
+
+<div class="pv-header">
+  <span class="pv-h-timer">00:00:00</span>
+  <span class="pv-h-progress"><span class="pv-h-progress-fill"></span></span>
+  <span class="pv-h-num">1 / 1</span>
+</div>
+<div class="pv-takeaway">
+  <span class="pv-takeaway-label">Key takeaway</span>
+  <span class="pv-takeaway-content">—</span>
+</div>
+<div class="pv-footer">
+  <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigate &middot; <kbd>S</kbd> exit presenter &middot; <kbd>Esc</kbd> exit</span>
+  <span>Building Autonomous AI Agents · Day 1 · Full End-to-End Build · SMU</span>
+</div>
+
+<script>
+window.DECK = {"sections": [{"id": "overview", "label": "Welcome"}, {"id": "gap", "label": "I \u00b7 The missing half"}, {"id": "api", "label": "II \u00b7 What an API is"}, {"id": "lta", "label": "III \u00b7 Getting the LTA key"}, {"id": "secrets", "label": "IV \u00b7 Keys that never leak"}, {"id": "wiring", "label": "V \u00b7 Wiring it up"}, {"id": "health", "label": "VI \u00b7 Is it working?"}, {"id": "build", "label": "VII \u00b7 Group build"}, {"id": "summary", "label": "Close"}]};
+window.__deckWidgets = {};
+window.registerWidget = function (id, fn) { window.__deckWidgets[id] = fn; };
+</script>
+
+<script>
+var MB = { navy:'#1B3556', navyL:'#2C5282', red:'#b53a4a', teal:'#2B7A9B',
+           gray:'#8899AA', rule:'#CBD5E0', green:'#107850', yellow:'#F4D03F',
+           text:'#1A202C', dim:'#DCE3EA', ink:'#0f1f33', purple:'#5f4b8b' };
+window.__w3 = window.__w3 || {};
+
+function w3Box(g, b) {
+  var grp = g.append('g');
+  grp.append('rect').attr('x',b.x).attr('y',b.y).attr('width',b.w).attr('height',b.h)
+    .attr('rx',b.rx == null ? 5 : b.rx).attr('fill',b.fill || '#fff')
+    .attr('stroke',b.stroke || MB.navy).attr('stroke-width',b.sw == null ? 1.4 : b.sw)
+    .attr('stroke-dasharray', b.dash || null);
+  if (b.tag) grp.append('text').attr('x',b.x+b.w/2).attr('y',b.y + (b.sub ? 20 : b.h/2 + 4))
+    .attr('text-anchor','middle').attr('font-size',b.fs || 12).attr('font-weight',700)
+    .attr('fill', b.dark ? '#fff' : MB.navy).text(b.tag);
+  if (b.sub) grp.append('text').attr('x',b.x+b.w/2).attr('y',b.y+36).attr('text-anchor','middle')
+    .attr('font-size',9).attr('fill', b.dark ? 'rgba(255,255,255,0.85)' : MB.gray).text(b.sub);
+  return grp;
+}
+function w3Edge(a, b) {
+  var x1 = a.x + a.w, y1 = a.y + a.h/2, x2 = b.x, y2 = b.y + b.h/2, mx = (x1 + x2) / 2;
+  return 'M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2;
+}
+function w3Travel(dot, node, ms, done) {
+  var L = node.getTotalLength();
+  dot.transition().duration(ms).ease(d3.easeCubicInOut)
+    .attrTween('cx', function(){ return function(t){ return node.getPointAtLength(t*L).x; }; })
+    .attrTween('cy', function(){ return function(t){ return node.getPointAtLength(t*L).y; }; })
+    .on('end', function(){ if (done) done(); });
+}
+function w3Pin(g, x, y, n, fill) {
+  var m = g.append('g');
+  m.append('circle').attr('cx',x).attr('cy',y).attr('r',9).attr('fill',fill || MB.red)
+    .attr('stroke','#fff').attr('stroke-width',1.5);
+  m.append('text').attr('x',x).attr('y',y+3.5).attr('text-anchor','middle').attr('font-size',10)
+    .attr('font-weight',800).attr('fill','#fff').text(n);
+  return m;
+}
+
+window.__w3.routeFacts = function (mode) {
+  var R = {
+    direct: {
+      hops: [['user','lta']],
+      keyAt: 'in the browser bundle, readable by anyone',
+      corsOk: false,
+      verdict: 'blocked twice over',
+      why: 'Because of the AccountKey header, the browser first asks LTA for permission. LTA refuses (403, with no permission header), so the browser never sends your real request. Even without the header, the browser would not let your page read LTA’s reply. And the key was published the moment you deployed. Two separate failures, either one fatal.',
+      safe: false
+    },
+    proxied: {
+      hops: [['user','fn'], ['fn','lta']],
+      keyAt: 'in a Vercel environment variable, on the server',
+      corsOk: true,
+      verdict: 'the only wiring that works',
+      why: 'Your page calls your own address, so there is no cross-origin problem to solve. The function adds the AccountKey header out of sight and passes the answer back.',
+      safe: true
+    }
+  };
+  return R[mode];
+};
+registerWidget('request-path', function (root) {
+  var svg = d3.select(root).select('#rp-svg'), g = svg.append('g');
+  var readout = d3.select(root).select('#rp-readout'), verdict = d3.select(root).select('#rp-verdict');
+  var mode = 'proxied', timer = null;
+  var N = {
+    user: { x:12,  y:58, w:130, h:62, tag:'Your page', sub:'in a visitor’s browser', stroke:MB.red },
+    fn:   { x:250, y:58, w:150, h:62, tag:'/api/bus', sub:'your function, on Vercel', fill:MB.navy, stroke:MB.navy, dark:true },
+    lta:  { x:520, y:58, w:180, h:62, tag:'LTA DataMall', sub:'datamall2.mytransport.sg', fill:'#eaf4ee', stroke:MB.green }
+  };
+  var nodes = {}, paths = {};
+  Object.keys(N).forEach(function (k) { nodes[k] = w3Box(g, N[k]); });
+  [['user','fn'], ['fn','lta'], ['user','lta']].forEach(function (p) {
+    paths[p.join('>')] = g.append('path').attr('d', w3Edge(N[p[0]], N[p[1]]))
+      .attr('fill','none').attr('stroke',MB.gray).attr('stroke-width',1.4).attr('stroke-dasharray','5 4').node();
+  });
+
+  var direct = 'M' + (N.user.x + N.user.w/2) + ',' + (N.user.y + N.user.h) +
+               ' C' + (N.user.x + 120) + ',' + 176 + ' ' + (N.lta.x - 60) + ',' + 176 +
+               ' ' + (N.lta.x + N.lta.w/2) + ',' + (N.lta.y + N.lta.h);
+  paths['user>lta'] = g.append('path').attr('d', direct).attr('fill','none')
+    .attr('stroke',MB.red).attr('stroke-width',1.5).attr('stroke-dasharray','5 4').node();
+  var keyTag = g.append('g');
+  var dot = g.append('circle').attr('r',5.5).attr('fill',MB.red).attr('opacity',0);
+  var note = g.append('text').attr('x',12).attr('y',196).attr('font-size',9.5).attr('font-weight',700);
+
+  function draw() {
+    var f = window.__w3.routeFacts(mode);
+    var proxied = (mode === 'proxied');
+    d3.select(paths['user>fn']).attr('opacity', proxied ? 1 : 0.12);
+    d3.select(paths['fn>lta']).attr('opacity', proxied ? 1 : 0.12);
+    d3.select(paths['user>lta']).attr('opacity', proxied ? 0.12 : 1);
+    nodes.fn.attr('opacity', proxied ? 1 : 0.2);
+    keyTag.selectAll('*').remove();
+    var kx = proxied ? N.fn.x + N.fn.w/2 : N.user.x + N.user.w/2;
+    keyTag.append('rect').attr('x',kx-58).attr('y',20).attr('width',116).attr('height',20).attr('rx',10)
+      .attr('fill', proxied ? MB.green : MB.red);
+    keyTag.append('text').attr('x',kx).attr('y',34).attr('text-anchor','middle').attr('font-size',10)
+      .attr('font-weight',700).attr('fill','#fff').text(proxied ? 'AccountKey lives here' : 'AccountKey published');
+    note.attr('fill', proxied ? MB.green : MB.red).text(proxied
+      ? 'The browser only ever talks to your own address, so no CORS header from LTA is needed.'
+      : 'The browser asks LTA for permission first and is refused, so the call never leaves. The key shipped with the page anyway.');
+    readout.text(f.why);
+    verdict.text(f.verdict).style('color', f.safe ? MB.green : MB.red);
+    animate(f);
+  }
+  function animate(f) {
+    if (timer) { clearTimeout(timer); timer = null; }
+    dot.interrupt().attr('opacity',1).attr('fill', f.safe ? MB.green : MB.red);
+    var i = 0;
+    (function hop() {
+      if (i >= f.hops.length) {
+        if (!f.safe) {
+          dot.transition().duration(260).attr('opacity',0);
+        } else { dot.transition().duration(300).attr('opacity',0); }
+        return;
+      }
+      var key = f.hops[i].join('>'); i++;
+      w3Travel(dot, paths[key], 780, hop);
+    })();
+  }
+  d3.select(root).selectAll('input[name="rp-mode"]').on('change', function () { mode = this.value; draw(); });
+  draw();
+});
+
+window.__w3.keyPlaces = function () {
+  return [
+    { id:'component', label:'Typed into the React component',
+      safe:false, who:'Everyone who opens your site',
+      how:'It is compiled into the JavaScript the browser downloads. Right-click, View Source, and it is there. Deleting it later does not help: it also sits in your GitHub history.' },
+    { id:'viteenv', label:'A VITE_ variable in .env',
+      safe:false, who:'Everyone who opens your site',
+      how:'This is the trap that feels safe. Vite replaces every VITE_ name with its value at build time, so the secret is baked into the bundle exactly as if you had typed it in. The prefix decides who can read it, and VITE_ means everyone.' },
+    { id:'committed', label:'A .env file committed to GitHub',
+      safe:false, who:'Everyone on the internet, within minutes',
+      how:'Public repositories are scanned continuously. Git history is permanent, so a key pushed once stays readable in the commit log after you delete the file.' },
+    { id:'vercelenv', label:'A Vercel environment variable, read inside /api',
+      safe:true, who:'Nobody but your function',
+      how:'The value never enters the bundle and never enters the repository. Your function reads it at runtime with process.env, adds it to the outgoing header, and returns only the answer.' }
+  ];
+};
+registerWidget('key-leak', function (root) {
+  var svg = d3.select(root).select('#kl-svg'), g = svg.append('g');
+  var readout = d3.select(root).select('#kl-readout'), verdict = d3.select(root).select('#kl-verdict');
+  var places = window.__w3.keyPlaces(), cur = 3;
+  var W = 720, rowH = 30, x0 = 12, boxW = 250, barX = x0 + boxW + 14, barMax = 190;
+  var rows = places.map(function (p, i) {
+    var y = 14 + i * rowH, grp = g.append('g');
+    grp.append('rect').attr('x',x0).attr('y',y).attr('width',boxW).attr('height',24).attr('rx',4)
+      .attr('fill','#fff').attr('stroke',MB.rule).attr('stroke-width',1.2);
+    grp.append('text').attr('x',x0+10).attr('y',y+16).attr('font-size',10.5).attr('fill',MB.text).text(p.label);
+
+    var bar = grp.append('rect').attr('x',barX).attr('y',y+6).attr('height',12).attr('rx',6)
+      .attr('width', p.safe ? 14 : barMax).attr('fill', p.safe ? MB.green : MB.red).attr('opacity',0.85);
+    grp.append('text').attr('x',barX+(p.safe?22:barMax+8)).attr('y',y+16).attr('font-size',9.5)
+      .attr('fill', p.safe ? MB.green : MB.red).attr('font-weight',700).text(p.who);
+    grp.style('cursor','pointer').on('click', function () { cur = i; paint(); });
+    return { grp: grp, bar: bar, p: p, y: y };
+  });
+  g.append('text').attr('x',x0).attr('y',144).attr('font-size',9).attr('fill',MB.gray)
+    .text('Bar length is how many people can read the key. Click a row.');
+  function paint() {
+    rows.forEach(function (r, i) {
+      r.grp.select('rect').attr('stroke', i === cur ? (r.p.safe ? MB.green : MB.red) : MB.rule)
+        .attr('stroke-width', i === cur ? 2.2 : 1.2)
+        .attr('fill', i === cur ? (r.p.safe ? '#eaf4ee' : '#fbf0f1') : '#fff');
+    });
+    var p = places[cur];
+    readout.text(p.how);
+    verdict.text(p.safe ? 'the only safe place' : 'published').style('color', p.safe ? MB.green : MB.red);
+  }
+  paint();
+});
+
+window.__w3.statusMeaning = function (code) {
+  var M = {
+    200: { band:'ok',    short:'It worked.',
+           what:'You have data. If the screen is still empty, the problem is not the call: it is the path you are reading inside the answer. Print the raw response and look at the field names.' },
+    304: { band:'ok',    short:'Your own copy is still good.',
+           what:'You asked whether anything had changed and the answer was no, so nothing was re-sent. This is not what the shared cache looks like: a cache hit at the edge still comes back as a 200.' },
+    400: { band:'you',   short:'Your request was malformed.',
+           what:'A required parameter is missing or misspelt. For bus arrivals that is almost always BusStopCode.' },
+    401: { band:'you',   short:'No credential, or the wrong one.',
+           what:'Most services answer this when a key is missing. LTA answers it when a key arrived and was refused: a wrong key, or the word undefined from a variable that was never set. Read keyConfigured in /api/health first.' },
+    403: { band:'you',   short:'Understood, and refused.',
+           what:'The server understood you and will not authorise it. On LTA, an Access Denied page with a 403 means the BusStopCode parameter is missing or wrongly capitalised. It must be spelled BusStopCode exactly.' },
+    404: { band:'you',   short:'Not found. On LTA, usually your key.',
+           what:'LTA answers a missing AccountKey header, or an empty one, with 404 The requested API was not found, at a correct address. Check the header before you touch the URL. Everywhere else, 404 really does mean the address is wrong.' },
+    429: { band:'meter', short:'Too many requests.',
+           what:'You went past the meter. Back off and cache rather than retrying harder. Without a key, data.gov.sg may count the whole room, or everyone on Vercel’s servers, as one caller.' },
+    500: { band:'them',  short:'Their server broke.',
+           what:'Not your fault and not fixable by re-prompting. Show your users a calm message and try again shortly.' },
+    502: { band:'them',  short:'A gateway got a bad answer upstream.',
+           what:'Usually transient. If it persists, the upstream service is having a bad morning.' },
+    504: { band:'them',  short:'Upstream took too long.',
+           what:'With the code FUNCTION_INVOCATION_TIMEOUT, your function ran for five minutes without answering: usually a missing response, or a call with no timeout. Without that code, it is probably LTA’s own 504, relayed by your function.' }
+  };
+  return M[code];
+};
+registerWidget('status-codes', function (root) {
+  var svg = d3.select(root).select('#sc-svg'), g = svg.append('g');
+  var readout = d3.select(root).select('#sc-readout'), verdict = d3.select(root).select('#sc-verdict');
+  var codes = [200, 304, 400, 401, 403, 404, 429, 500, 502, 504], cur = 404;
+  var COL = { ok: MB.green, you: '#b45e28', meter: '#8a6a10', them: MB.red };
+  var BAND = { ok:'the call succeeded', you:'your side to fix', meter:'slow down', them:'their side, wait' };
+  var bw = 128, gap = 12, x0 = 12;
+  var cells = codes.map(function (c, i) {
+    var x = x0 + (i % 5) * (bw + gap), y = 14 + Math.floor(i / 5) * 46, grp = g.append('g');
+    grp.append('rect').attr('x',x).attr('y',y).attr('width',bw).attr('height',34).attr('rx',5)
+      .attr('fill','#fff').attr('stroke',MB.rule).attr('stroke-width',1.3);
+    grp.append('text').attr('x',x+bw/2).attr('y',y+17).attr('text-anchor','middle')
+      .attr('font-family',"'JetBrains Mono', monospace").attr('font-size',14).attr('font-weight',700)
+      .attr('fill',COL[window.__w3.statusMeaning(c).band]).text(c);
+    grp.append('text').attr('x',x+bw/2).attr('y',y+28).attr('text-anchor','middle').attr('font-size',9)
+      .attr('fill',MB.gray).text(BAND[window.__w3.statusMeaning(c).band]);
+    grp.style('cursor','pointer').on('click', function () { cur = c; paint(); });
+    return { grp: grp, code: c, x: x, y: y };
+  });
+  var short = g.append('text').attr('x',x0).attr('y',124).attr('font-size',12).attr('font-weight',700);
+  function paint() {
+    var m = window.__w3.statusMeaning(cur);
+    cells.forEach(function (cell) {
+      var on = cell.code === cur;
+      cell.grp.select('rect').attr('stroke', on ? COL[window.__w3.statusMeaning(cell.code).band] : MB.rule)
+        .attr('stroke-width', on ? 2.4 : 1.3)
+        .attr('fill', on ? '#f7f9fb' : '#fff');
+    });
+    short.attr('fill', COL[m.band]).text(cur + ' · ' + m.short);
+    readout.text(m.what);
+    verdict.text(BAND[m.band]).style('color', COL[m.band]);
+  }
+  paint();
+});
+
+window.__w3.upstreamCalls = function (students, refreshesPerMin, cacheSeconds) {
+  var perStudent = refreshesPerMin;
+  if (cacheSeconds <= 0) return students * perStudent;
+  return Math.min(students * perStudent, Math.ceil(60 / cacheSeconds));
+};
+registerWidget('cache-window', function (root) {
+  var svg = d3.select(root).select('#cw-svg'), g = svg.append('g');
+  var readout = d3.select(root).select('#cw-readout'), verdict = d3.select(root).select('#cw-verdict');
+  var students = 30, refresh = 4, cache = 20;
+  var W = 700, x0 = 12;
+  g.append('text').attr('x',x0).attr('y',16).attr('font-size',10).attr('font-weight',700).attr('fill',MB.navy)
+    .text('Calls reaching LTA in one minute');
+  g.append('rect').attr('x',x0).attr('y',24).attr('width',W).attr('height',26).attr('rx',5).attr('fill',MB.dim);
+  var bar = g.append('rect').attr('x',x0).attr('y',24).attr('height',26).attr('rx',5).attr('fill',MB.red);
+  var barTx = g.append('text').attr('y',42).attr('font-size',12).attr('font-weight',800);
+  var freshTx = g.append('text').attr('x',x0).attr('y',74).attr('font-size',10).attr('fill',MB.text);
+  var MAXCALLS = 40 * refresh;
+  function paint() {
+    var calls = window.__w3.upstreamCalls(students, refresh, cache);
+    var frac = Math.min(1, calls / MAXCALLS);
+    bar.transition().duration(250).attr('width', Math.max(6, W * frac))
+      .attr('fill', calls > 60 ? MB.red : (calls > 12 ? MB.yellow : MB.green));
+    barTx.attr('x', x0 + Math.max(6, W * frac) + 8).text(calls + (calls === 1 ? ' call' : ' calls'))
+      .attr('fill', calls > 60 ? MB.red : (calls > 12 ? '#8a6a10' : MB.green));
+    var stale = cache;
+    freshTx.text('Worst-case staleness on screen: ' + stale + ' seconds. Bus arrivals refresh every 20 seconds, so anything up to 20 costs your users nothing they could notice.');
+    readout.text(cache === 0
+      ? 'With no cache, every refresh by every person is its own call to LTA. This is how a room of 30 trips a rate limit in a single demonstration.'
+      : 'One call every ' + cache + ' seconds serves the whole room, because the second person to ask gets the answer the first person already fetched.');
+    verdict.text(calls > 60 ? 'rate limit territory' : (calls > 12 ? 'workable' : 'polite'))
+      .style('color', calls > 60 ? MB.red : (calls > 12 ? '#8a6a10' : MB.green));
+  }
+  d3.select(root).select('#cw-cache').on('input', function () {
+    cache = +this.value;
+    d3.select(root).select('#cw-cache-val').text(cache + ' s');
+    paint();
+  });
+  d3.select(root).select('#cw-students').on('input', function () {
+    students = +this.value;
+    d3.select(root).select('#cw-students-val').text(students);
+    paint();
+  });
+  paint();
+});
+
+function uiFrame(g, W, H, kind, title) {
+  g.append('rect').attr('x',0.5).attr('y',0.5).attr('width',W-1).attr('height',H-1).attr('rx',8)
+    .attr('fill', kind === 'terminal' ? MB.ink : '#fff')
+    .attr('stroke', kind === 'terminal' ? MB.ink : MB.rule).attr('stroke-width',1.2);
+  g.append('rect').attr('x',0.5).attr('y',0.5).attr('width',W-1).attr('height',24).attr('rx',8)
+    .attr('fill', kind === 'terminal' ? '#1c2f4a' : '#f1f4f8');
+  g.append('rect').attr('x',0.5).attr('y',16).attr('width',W-1).attr('height',9)
+    .attr('fill', kind === 'terminal' ? '#1c2f4a' : '#f1f4f8');
+  [0,1,2].forEach(function (i) {
+    g.append('circle').attr('cx',14 + i*14).attr('cy',12.5).attr('r',4)
+      .attr('fill',['#ff5f57','#febc2e','#28c840'][i]);
+  });
+  if (kind !== 'terminal') {
+    g.append('rect').attr('x',64).attr('y',5).attr('width',W-130).attr('height',15).attr('rx',7)
+      .attr('fill','#fff').attr('stroke',MB.rule);
+    g.append('text').attr('x',W/2).attr('y',16).attr('text-anchor','middle').attr('font-size',8.5)
+      .attr('fill',MB.text).text(title);
+  } else {
+    g.append('text').attr('x',W/2).attr('y',16).attr('text-anchor','middle').attr('font-size',8.5)
+      .attr('fill','#c9d6e6').text(title);
+  }
+}
+function uiText(g, x, y, s, o) {
+  o = o || {};
+  return g.append('text').attr('x',x).attr('y',y).attr('font-size',o.fs || 9)
+    .attr('font-weight',o.b ? 700 : 400).attr('fill',o.fill || MB.text)
+    .attr('font-family', o.mono ? "'JetBrains Mono', monospace" : null)
+    .attr('text-anchor', o.anchor || 'start').text(s);
+}
+function uiBtn(g, x, y, w, h, label, o) {
+  o = o || {};
+  g.append('rect').attr('x',x).attr('y',y).attr('width',w).attr('height',h).attr('rx',4)
+    .attr('fill', o.fill || MB.navy).attr('stroke', o.stroke || 'none');
+  uiText(g, x + w/2, y + h/2 + 3.5, label, { fs: o.fs || 9, b:true, fill: o.color || '#fff', anchor:'middle' });
+}
+function uiField(g, x, y, w, h, label, o) {
+  o = o || {};
+  g.append('rect').attr('x',x).attr('y',y).attr('width',w).attr('height',h).attr('rx',3)
+    .attr('fill','#fff').attr('stroke', o.stroke || '#c3cad2').attr('stroke-width',1);
+  if (label) uiText(g, x+8, y+h/2+3.5, label, { fs:o.fs || 8.5, mono:o.mono, fill:o.fill || MB.text });
+}
+var UI = {};
+
+UI['ui-lta-request'] = function (g, W, H) {
+  g.append('rect').attr('x',0.5).attr('y',0.5).attr('width',W-1).attr('height',28).attr('rx',6)
+    .attr('fill','#f1f4f8').attr('stroke',MB.rule);
+  uiText(g, 10, 18, 'datamall.lta.gov.sg', { fs:8, mono:true });
+  uiText(g, 108, 18.5, '›', { fs:11, fill:MB.gray });
+  uiText(g, 118, 18, 'Dynamic Data', { fs:8.5, b:true, fill:MB.navy });
+  w3Pin(g, 190, 14, 1);
+  uiText(g, 204, 18.5, '›', { fs:11, fill:MB.gray });
+  uiBtn(g, 214, 5, 104, 18, 'Request for API Access', { fill:MB.navy, fs:7.4 });
+  w3Pin(g, 328, 14, 2);
+  uiBtn(g, 342, 5, W-350, 18, 'API Documentation (PDF, 1.5MB)', { fill:'#fff', stroke:MB.rule, color:MB.gray, fs:6.6 });
+
+  var f = g.append('g').attr('transform','translate(0,36)'), FH = H - 36;
+  uiFrame(f, W, FH, 'browser', 'datamall.lta.gov.sg/content/datamall/en/request-for-api.html');
+  uiText(f, 14, 40, 'Request For API Access', { fs:11, b:true, fill:MB.navy });
+  f.append('line').attr('x1',14).attr('y1',45).attr('x2',W-14).attr('y2',45).attr('stroke',MB.rule);
+
+  uiText(f, 14, 57, 'Part I  Applicant lnformation', { fs:8.5, b:true, fill:MB.gray });
+  var rows = [['Name *','Enter your name',3], ['Email *','Enter your email',4],
+              ['Contact No *','Enter your contact no',5], ['Company Name','',6]];
+  rows.forEach(function (r, i) {
+    var y = 62 + i * 19;
+    uiText(f, 18, y+11, r[0], { fs:7.8, b:true, fill: r[0].indexOf('*') > -1 ? MB.red : MB.gray });
+    if (i === 2) {
+      uiField(f, 104, y, 58, 15, '', {});
+      f.append('rect').attr('x',110).attr('y',y+4).attr('width',12).attr('height',3.5).attr('fill','#d52b1e');
+      f.append('rect').attr('x',110).attr('y',y+7.5).attr('width',12).attr('height',3.5).attr('fill','#fff')
+        .attr('stroke','#e3e8ee').attr('stroke-width',0.5);
+      uiText(f, 126, y+11, '+65 ▾', { fs:7.2 });
+      uiField(f, 166, y, 188, 15, r[1], { fs:7.4, fill:'#9aa2ac' });
+    } else {
+      uiField(f, 104, y, 250, 15, r[1], { fs:7.4, fill:'#9aa2ac' });
+    }
+    w3Pin(f, 366, y+7.5, r[2]);
+  });
+
+  uiText(f, 14, 148, 'Part II.  Data Usage', { fs:8.5, b:true, fill:MB.gray });
+  uiText(f, 18, 159, 'Purpose of Usage (please select all that is applicable)', { fs:7.2, fill:MB.gray });
+  [['Mobile APP',0,0], ['Website/Portal',1,0], ['Research',2,0], ['Student Projects',0,1], ['Others',1,1]]
+    .forEach(function (b) {
+      var x = 18 + b[1] * 110, y = 164 + b[2] * 13, on = (b[0] === 'Website/Portal');
+      f.append('rect').attr('x',x).attr('y',y).attr('width',9).attr('height',9).attr('rx',2)
+        .attr('fill', on ? MB.navy : '#fff').attr('stroke', on ? MB.navy : '#c3cad2').attr('stroke-width',1.2);
+      uiText(f, x+13, y+8, b[0], { fs:7.2, b:on, fill: on ? MB.navy : MB.text });
+      if (on) w3Pin(f, x+80, y+4.5, 7);
+    });
+  uiText(f, 18, 199, 'Description (please provide us with more background information on your application)', { fs:6.8, fill:MB.gray });
+  uiField(f, 18, 203, W-58, 15, 'SMU short-course exercise: a web page showing live bus arrivals at stop 04121.', { fs:7 });
+  w3Pin(f, W-26, 210.5, 8);
+
+  var cy = 224;
+  uiText(f, 18, cy+11, 'Type in verification code *', { fs:7.8, b:true, fill:MB.red });
+  uiField(f, 150, cy, 58, 16, '', { stroke:MB.red });
+  f.append('rect').attr('x',214).attr('y',cy).attr('width',64).attr('height',16).attr('rx',3)
+    .attr('fill','#e8eef4').attr('stroke','#c3cad2');
+  uiText(f, 246, cy+11.5, 'x7 K 2 q', { fs:8.5, mono:true, anchor:'middle', fill:'#5b6470' });
+  uiBtn(f, 284, cy, 46, 16, 'Refresh', { fill:'#0051ad', fs:7.4 });
+  w3Pin(f, 342, cy+8, 9);
+
+  uiText(f, 14, 254, 'Part III.  Terms of Use & Subscription Preferences', { fs:8.5, b:true, fill:MB.gray });
+  f.append('rect').attr('x',18).attr('y',259).attr('width',9).attr('height',9).attr('rx',2)
+    .attr('fill',MB.navy).attr('stroke',MB.navy);
+  uiText(f, 32, 266, 'I agree to and accept the terms stated herein the Singapore Open Data Licence,', { fs:7.2 });
+  uiText(f, 32, 275, 'and Terms of Service for API and SDK. *', { fs:7.2 });
+  w3Pin(f, W-26, 266, 10);
+  f.append('rect').attr('x',18).attr('y',280).attr('width',9).attr('height',9).attr('rx',2)
+    .attr('fill','#fff').attr('stroke','#c3cad2').attr('stroke-width',1.2);
+  uiText(f, 32, 287.5, 'I want to be subscribed to DataMall mailing list.', { fs:7.2, fill:MB.gray });
+
+  uiBtn(f, W/4 - 30, FH-24, 60, 17, 'Reset', { fill:'#343a40', fs:8 });
+  uiBtn(f, 3*W/4 - 32, FH-24, 64, 17, 'Submit', { fill:'#0051ad', fs:8.5 });
+  w3Pin(f, 3*W/4 + 46, FH-15.5, 11);
+
+  f.append('rect').attr('x',303).attr('y',143).attr('width',150).attr('height',48).attr('rx',6)
+    .attr('fill','rgba(15,31,51,0.16)');
+  f.append('rect').attr('x',300).attr('y',140).attr('width',150).attr('height',48).attr('rx',6)
+    .attr('fill','#fff').attr('stroke',MB.navy).attr('stroke-width',1.2);
+  uiText(f, 310, 157, 'Confirm submission?', { fs:8.5, b:true });
+  uiBtn(f, 352, 166, 44, 15, 'Cancel', { fill:'#fff', stroke:MB.rule, color:MB.text, fs:7.2 });
+  uiBtn(f, 400, 166, 40, 15, 'OK', { fill:MB.navy, fs:7.6 });
+  w3Pin(f, 288, 164, 12);
+};
+
+UI['ui-vercel-env'] = function (g, W, H) {
+  var fw = (W - 14) / 2;
+  var a = g.append('g');
+  uiFrame(a, fw, H, 'browser', 'vercel.com · Project · Settings');
+  uiText(a, 12, 42, 'Settings', { fs:10, b:true, fill:MB.gray });
+  ['General','Domains','Environment Variables','Git','Functions'].forEach(function (t, i) {
+    var y = 56 + i*17;
+    if (t === 'Environment Variables') {
+      a.append('rect').attr('x',8).attr('y',y-10).attr('width',120).attr('height',15).attr('rx',3).attr('fill','#eef2f6');
+      uiText(a, 14, y, t, { fs:8.5, b:true, fill:MB.navy });
+      w3Pin(a, 136, y-3, 1);
+    } else { uiText(a, 14, y, t, { fs:8.5, fill:MB.gray }); }
+  });
+  uiText(a, 150, 42, 'Environment Variables', { fs:9, b:true, fill:MB.navy });
+  uiBtn(a, fw-40, 31, 28, 15, '+', { fill:MB.navy, fs:11 });
+  w3Pin(a, fw-54, 38.5, 2);
+
+  a.append('rect').attr('x',146).attr('y',52).attr('width',fw-154).attr('height',H-58).attr('rx',6)
+    .attr('fill','#fff').attr('stroke',MB.navy).attr('stroke-width',1.2);
+  uiText(a, 154, 66, 'Add Environment Variable', { fs:8.5, b:true });
+  uiText(a, fw-18, 66, '×', { fs:11, fill:MB.gray, anchor:'middle' });
+  uiText(a, 154, 79, 'Type', { fs:7.5, b:true, fill:MB.gray });
+  uiBtn(a, 154, 82, 80, 16, 'Secret', { fill:MB.navy, fs:8 });
+  uiBtn(a, 238, 82, 80, 16, 'Config', { fill:'#fff', stroke:MB.rule, color:MB.gray, fs:8 });
+  w3Pin(a, fw-18, 90, 3);
+  uiText(a, 154, 111, 'Key', { fs:7.5, b:true, fill:MB.gray });
+  uiField(a, 154, 114, 164, 15, 'LTA_ACCOUNT_KEY', { mono:true, fs:7.8 });
+  w3Pin(a, fw-18, 121.5, 4);
+  uiText(a, 154, 142, 'Value', { fs:7.5, b:true, fill:MB.gray });
+  uiField(a, 154, 145, 164, 15, '••••••••••••••', { mono:true, fs:7.8 });
+  a.append('ellipse').attr('cx',306).attr('cy',152.5).attr('rx',5.5).attr('ry',3.2)
+    .attr('fill','none').attr('stroke',MB.gray).attr('stroke-width',1);
+  a.append('circle').attr('cx',306).attr('cy',152.5).attr('r',1.5).attr('fill',MB.gray);
+  w3Pin(a, fw-18, 152.5, 5);
+  uiText(a, 154, 173, 'Note (Optional)', { fs:7.5, b:true, fill:MB.gray });
+  uiField(a, 154, 176, 164, 13, '', {});
+  uiText(a, 154, 202, 'Environments', { fs:7.5, b:true, fill:MB.gray });
+  uiField(a, 154, 205, 104, 15, 'Production  ▾', { fs:7.8 });
+  w3Pin(a, 270, 212.5, 6);
+  a.append('line').attr('x1',150).attr('y1',226).attr('x2',fw-12).attr('y2',226).attr('stroke','#e3e8ee');
+  uiText(a, 154, 240, 'Import .env', { fs:7, fill:MB.gray });
+  uiBtn(a, fw-60, 230, 44, 15, 'Save', { fill:'#000', fs:8 });
+  w3Pin(a, fw-72, 237.5, 7);
+
+  var b = g.append('g').attr('transform','translate(' + (fw + 14) + ',0)');
+  uiFrame(b, fw, H, 'browser', 'vercel.com · Project · Deployments');
+  uiText(b, 12, 44, 'Deployments', { fs:10, b:true });
+  uiText(b, 12, 60, 'A saved variable does not reach a build that already', { fs:8, fill:MB.red, b:true });
+  uiText(b, 12, 71, 'happened. You must deploy again.', { fs:8, fill:MB.red, b:true });
+  var dy = 80;
+  [['Ready','main · 2m ago', true], ['Ready','main · 1h ago', false]].forEach(function (d, i) {
+    var y = dy + i*28;
+    b.append('rect').attr('x',10).attr('y',y).attr('width',fw-20).attr('height',22).attr('rx',4)
+      .attr('fill','#fff').attr('stroke',MB.rule);
+    b.append('circle').attr('cx',22).attr('cy',y+11).attr('r',4).attr('fill',MB.green);
+    uiText(b, 32, y+14.5, d[0], { fs:8.5, b:true });
+    uiText(b, 66, y+14.5, d[1], { fs:8, fill:MB.gray });
+    uiText(b, fw-34, y+14.5, '…', { fs:13, b:true, fill:MB.navy });
+    if (d[2]) w3Pin(b, fw-14, y+11, 8);
+  });
+  b.append('rect').attr('x',fw-128).attr('y',dy+19).attr('width',92).attr('height',20).attr('rx',4)
+    .attr('fill','#fff').attr('stroke',MB.navy).attr('stroke-width',1.1);
+  uiText(b, fw-118, dy+33, 'Redeploy', { fs:8.5, b:true, fill:MB.navy });
+
+  b.append('rect').attr('x',14).attr('y',142).attr('width',fw-28).attr('height',58).attr('rx',6)
+    .attr('fill','#fff').attr('stroke',MB.navy).attr('stroke-width',1.2);
+  uiText(b, 24, 158, 'Redeploy to Production', { fs:8.5, b:true });
+  b.append('rect').attr('x',24).attr('y',166).attr('width',9).attr('height',9).attr('rx',2)
+    .attr('fill','#fff').attr('stroke','#c3cad2').attr('stroke-width',1.2);
+  uiText(b, 38, 174, 'Use existing Build Cache', { fs:7.8, fill:MB.gray });
+  uiBtn(b, fw-106, 178, 70, 16, 'Redeploy', { fill:'#000', fs:8 });
+  w3Pin(b, fw-22, 186, 9);
+
+  uiField(b, 14, 212, fw-120, 16, 'your-project.vercel.app/api/health', { mono:true, fs:7.2 });
+  uiText(b, 14, 242, '"keyConfigured": true', { fs:8, mono:true, b:true, fill:MB.green });
+  w3Pin(b, fw-92, 220, 10);
+};
+
+UI['ui-aistudio-api'] = function (g, W, H) {
+  function gear(p, cx, cy) {
+    p.append('circle').attr('cx',cx).attr('cy',cy).attr('r',5).attr('fill','none')
+      .attr('stroke',MB.navy).attr('stroke-width',3).attr('stroke-dasharray','2 1.4');
+    p.append('circle').attr('cx',cx).attr('cy',cy).attr('r',1.8).attr('fill',MB.navy);
+  }
+  var a = g.append('g');
+  uiFrame(a, W, 72, 'browser', 'aistudio.google.com/apps');
+  w3Pin(a, W-54, 12.5, 1);
+  uiText(a, 14, 42, 'Build', { fs:10, b:true, fill:MB.navy });
+  a.append('circle').attr('cx',W-18).attr('cy',38).attr('r',7).attr('fill',MB.teal);
+  w3Pin(a, W-40, 38, 2);
+  uiField(a, 14, 49, W-130, 17, 'One screen that shows the next buses at my stop…', { fs:7.8 });
+  a.append('rect').attr('x',W-112).attr('y',49).attr('width',26).attr('height',17).attr('rx',4).attr('fill',MB.navy);
+  uiText(a, W-99, 61, '➤', { fs:9, fill:'#fff', anchor:'middle' });
+  w3Pin(a, W-72, 57.5, 3);
+
+  var b = g.append('g').attr('transform','translate(0,78)'), BH = H - 78;
+  uiFrame(b, W, BH, 'browser', 'aistudio.google.com/apps · your app');
+  w3Pin(b, W-54, 12.5, 5);
+  uiText(b, 14, 41, 'bus-board', { fs:9.5, b:true, fill:MB.navy });
+  gear(b, W-18, 37);
+  w3Pin(b, W-40, 37, 10);
+
+  b.append('rect').attr('x',10).attr('y',50).attr('width',150).attr('height',BH-64).attr('rx',5)
+    .attr('fill','#f7f9fb').attr('stroke',MB.rule);
+  uiText(b, 18, 63, 'chat panel', { fs:7.4, fill:MB.gray });
+  [[18, 72, 110], [40, 84, 112], [18, 100, 96]].forEach(function (m) {
+    b.append('rect').attr('x',m[0]).attr('y',m[1]).attr('width',m[2]).attr('height',7).attr('rx',3.5).attr('fill','#dfe5ec');
+  });
+  uiField(b, 16, BH-38, 124, 18, 'Paste the master prompt…', { fs:7.4 });
+  w3Pin(b, 150, BH-29, 6);
+
+  b.append('rect').attr('x',170).attr('y',50).attr('width',40).attr('height',14).attr('rx',3)
+    .attr('fill',MB.navy);
+  uiText(b, 190, 60, 'Code', { fs:8, b:true, fill:'#fff', anchor:'middle' });
+  b.append('rect').attr('x',170).attr('y',64).attr('width',92).attr('height',102).attr('rx',4)
+    .attr('fill','#f7f9fb').attr('stroke',MB.rule);
+  [['api/', 0, 0], ['bus.js', 1, 1], ['health.js', 1, 1], ['src/', 0, 0], ['App.tsx', 1, 0],
+   ['main.tsx', 1, 0], ['server.ts', 0, 2], ['package.json', 0, 0]].forEach(function (f, i) {
+    var y = 77 + i*11.5;
+    uiText(b, 176 + f[1]*10, y, f[0], { fs:7.4, mono:true, b: f[2] > 0,
+      fill: f[2] === 1 ? MB.green : (f[2] === 2 ? MB.navy : MB.text) });
+    if (f[0] === 'bus.js') w3Pin(b, 250, y-3, 7);
+    if (f[0] === 'server.ts') w3Pin(b, 250, y-3, 8);
+  });
+  b.append('rect').attr('x',266).attr('y',64).attr('width',W-276).attr('height',102).attr('rx',4)
+    .attr('fill',MB.ink);
+  ['export default async (req, res) => {',
+   '  const key = process.env.LTA_ACCOUNT_KEY;',
+   '  if (!key) return res.status(503).json(…);',
+   '  const r = await fetch(endpoint,',
+   '    { headers: { AccountKey: key } });',
+   '  if (!r.ok) return res.status(r.status).json(…);',
+   '  res.json(simplify(await r.json()));',
+   '};'].forEach(function (l, i) {
+    uiText(b, 272, 77 + i*11.5, l, { mono:true, fs:6.1, fill: i === 1 ? MB.yellow : '#c9d6e6' })
+      .style('white-space','pre');
+  });
+  w3Pin(b, W-18, 85, 9);
+
+  b.append('rect').attr('x',170).attr('y',172).attr('width',W-180).attr('height',BH-186).attr('rx',4)
+    .attr('fill','#fff').attr('stroke',MB.rule);
+  uiText(b, 178, 184, 'preview', { fs:7, fill:MB.gray });
+  uiText(b, 220, 184, 'Next buses at Bras Basah', { fs:8.5, b:true });
+  uiText(b, 220, 198, '7 · 3 min      ·      14 · 9 min', { fs:8, mono:true, fill:MB.green });
+  w3Pin(b, W-44, 191, 4);
+  w3Pin(b, W-21, 191, 11);
+  uiText(b, W-10, BH-5, 'Schematic, not a screenshot.', { fs:6.8, fill:MB.gray, anchor:'end' });
+};
+
+registerWidget('ui-mockup', function (root) {
+  var svg = d3.select(root).select('svg');
+  var kind = root.getAttribute('data-ui');
+  var vb = (svg.attr('viewBox') || '0 0 720 300').split(/\s+/).map(Number);
+  var g = svg.append('g');
+  if (UI[kind]) UI[kind](g, vb[2], vb[3]);
+  else g.append('text').attr('x',10).attr('y',20).text('unknown mockup ' + kind);
+});
+
+</script>
+
+<script id="mb-copy-buttons">
+
+(function () {
+  function flash(btn, cls, label) {
+    var old = btn.textContent;
+    btn.classList.add(cls); btn.textContent = label;
+    setTimeout(function () { btn.classList.remove(cls); btn.textContent = old; }, 1400);
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.copybtn');
+    if (!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    var src = document.getElementById(btn.getAttribute('data-target'));
+    if (!src) return;
+    var text = src.innerText || src.textContent || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flash(btn, 'done', 'Copied'); },
+                                              function () { flash(btn, 'fail', 'Blocked'); });
+    } else {
+      flash(btn, 'fail', 'No clipboard');
+    }
+  }, true);
+})();
+</script>
+
+<script>
+
+(function () {
+  "use strict";
+
+  var deck = document.querySelector(".deck");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".deck > .slide"));
+  var SECTIONS = (window.DECK && window.DECK.sections) || [];
+  var current = 0;
+
+  function slidesInSection(id) {
+    var out = [];
+    slides.forEach(function (s, i) { if (s.dataset.section === id) out.push(i); });
+    return out;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  function wrapSlides() {
+    slides.forEach(function (slide) {
+      var existing = slide.querySelector(":scope > .fit-box");
+      if (existing) { slide.__fitBox = existing; return; }
+      var box = document.createElement("div");
+      box.className = "fit-box";
+      var foot = slide.querySelector(":scope > .bm-footer");
+      var kids = Array.prototype.slice.call(slide.children);
+      kids.forEach(function (k) { if (k !== foot) box.appendChild(k); });
+      if (foot) slide.insertBefore(box, foot);
+      else slide.appendChild(box);
+      slide.__fitBox = box;
+    });
+  }
+
+  var ZOOM_OK = (function () {
+    try { return window.CSS && CSS.supports && CSS.supports("zoom", "0.9"); } catch (e) { return false; }
+  })();
+
+  function applyScale(box, z) {
+    if (ZOOM_OK) { box.style.zoom = (z === 1 ? "" : String(z)); return; }
+    if (z === 1) { box.style.transform = ""; box.style.width = ""; box.style.height = ""; return; }
+    box.style.transform = "scale(" + z + ")";
+    box.style.transformOrigin = "top left";
+    box.style.width = (100 / z) + "%";
+    box.style.height = (100 / z) + "%";
+  }
+
+  function fitsInBox(box) {
+    var br = box.getBoundingClientRect();
+    if (!br.width || !br.height) return true;
+    var PAD = 2.5;
+    var els = box.querySelectorAll("*");
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+
+      if (e.namespaceURI === "http://www.w3.org/2000/svg" && e.tagName.toLowerCase() !== "svg") continue;
+      if (e.classList && (e.classList.contains("frag-cursor") || e.classList.contains("next-cursor"))) continue;
+      var r = e.getBoundingClientRect();
+      if (!r.width && !r.height) continue;
+      if (r.top < br.top - PAD || r.bottom > br.bottom + PAD ||
+          r.left < br.left - PAD || r.right > br.right + PAD) return false;
+    }
+    return true;
+  }
+
+  function fitSlide(slide) {
+    var box = slide.__fitBox;
+    if (!box || !box.clientHeight) return;
+    var br = box.getBoundingClientRect();
+    if (!br.width || !br.height) return;
+    applyScale(box, 1);
+    var z = 1, lo, hi, i, mid;
+    var canGrow = !slide.classList.contains("slide-cover") &&
+                  !slide.classList.contains("slide-thanks") &&
+                  !slide.hasAttribute("data-no-grow");
+    if (!fitsInBox(box)) {
+
+      lo = 0.55; hi = 1;
+      for (i = 0; i < 7; i++) {
+        mid = (lo + hi) / 2;
+        applyScale(box, mid);
+        if (fitsInBox(box)) lo = mid; else hi = mid;
+      }
+      z = Math.floor(lo * 0.99 * 1000) / 1000;
+    } else if (canGrow) {
+
+      var MAX_GROW = 1.6;
+      applyScale(box, MAX_GROW);
+      if (fitsInBox(box)) {
+        z = MAX_GROW * 0.985;
+      } else {
+        lo = 1; hi = MAX_GROW;
+        for (i = 0; i < 7; i++) {
+          mid = (lo + hi) / 2;
+          applyScale(box, mid);
+          if (fitsInBox(box)) lo = mid; else hi = mid;
+        }
+        z = Math.max(1, Math.floor(lo * 0.985 * 1000) / 1000);
+      }
+    }
+    applyScale(box, z);
+
+    var guard = 0;
+    while (!fitsInBox(box) && z > 0.55 && guard < 12) {
+      z = Math.floor((z - 0.02) * 1000) / 1000;
+      applyScale(box, z);
+      guard++;
+    }
+    slide.__fitZoom = z;
+  }
+  function fitAll() {
+    slides.forEach(fitSlide);
+    if (fragsActive()) updateCursors(slides[current]);
+  }
+
+  function buildNav() {
+    slides.forEach(function (slide, idx) {
+      if (slide.classList.contains("slide-cover") || slide.classList.contains("slide-thanks")) return;
+      var existing = slide.querySelector(".beamer-nav");
+      var nav = existing || document.createElement("nav");
+      nav.className = "beamer-nav";
+      clear(nav);
+      var thisSection = slide.dataset.section;
+      SECTIONS.forEach(function (sec) {
+        var item = document.createElement("div");
+        item.className = "nav-item" + (sec.id === thisSection ? " active" : "");
+        var label = document.createElement("span");
+        label.className = "nav-label";
+        label.textContent = sec.label;
+        item.appendChild(label);
+        var dots = document.createElement("span");
+        dots.className = "nav-dots";
+        slidesInSection(sec.id).forEach(function (sidx) {
+          var dot = document.createElement("span");
+          var isFilled = sidx === idx || (sec.id === thisSection && sidx <= idx);
+          dot.className = "nav-dot" + (isFilled ? " filled" : "");
+          dot.setAttribute("data-target", sidx);
+          dot.setAttribute("data-tooltip", slides[sidx].getAttribute("data-title") || ("Slide " + (sidx + 1)));
+          dot.addEventListener("click", function () { goTo(sidx, true, "all"); });
+          dots.appendChild(dot);
+        });
+        item.appendChild(dots);
+        item.addEventListener("click", function (e) {
+          if (e.target.classList.contains("nav-dot")) return;
+          var first = slidesInSection(sec.id)[0];
+          if (first != null) goTo(first, true, "all");
+        });
+        nav.appendChild(item);
+      });
+
+      if (!existing) slide.insertBefore(nav, slide.__fitBox || slide.firstChild);
+    });
+  }
+
+  function addBadges() {
+    slides.forEach(function (slide, idx) {
+      if (slide.querySelector(".slide-info-badge")) return;
+      var b = document.createElement("div");
+      b.className = "slide-info-badge";
+      b.textContent = (idx + 1) + " / " + slides.length;
+      slide.appendChild(b);
+    });
+  }
+
+  var FRAG_SEL = [
+    ".slide-body > p", ".slide-body > ul > li", ".slide-body > ol > li",
+    ".slide-body > table", ".slide-body > .bm-box", ".slide-body > .bm-callout",
+    ".slide-body > .widget", ".slide-body > .stat-strip", ".slide-body > .arch-row",
+    ".slide-body > pre", ".slide-body > .bm-banner", ".slide-body > .fig-cap",
+    ".slide-body > .widget-note", ".slide-body > .two-col > div", ".slide-body > .three-col > div",
+    ".col-text > p", ".col-text > ul > li", ".col-text > ol > li",
+    ".col-text > .bm-box", ".col-text > .bm-callout", ".col-text > table",
+    ".col-text > .bm-banner", ".col-text > pre", ".col-fig"
+  ].join(", ");
+
+  function initFrags() {
+    slides.forEach(function (slide) {
+      slide.__shown = 0;
+      if (slide.classList.contains("slide-cover") || slide.classList.contains("slide-thanks") ||
+          slide.hasAttribute("data-no-frag")) { slide.__frags = []; return; }
+      var explicit = Array.prototype.slice.call(slide.querySelectorAll(".frag"));
+      var list;
+      if (explicit.length) {
+        list = explicit;
+      } else {
+        var cands = Array.prototype.slice.call(slide.querySelectorAll(FRAG_SEL));
+        cands.forEach(function (el) { el.__cand = true; });
+        list = cands.filter(function (el) {
+          if (el.hasAttribute("data-frag-skip")) return false;
+          if (el.closest(".beamer-nav") || el.closest(".bm-footer")) return false;
+          var p = el.parentElement;
+          while (p && p !== slide) { if (p.__cand) return false; p = p.parentElement; }
+          return true;
+        });
+        cands.forEach(function (el) { delete el.__cand; });
+      }
+      list.sort(function (a, b) {
+        var oa = a.hasAttribute("data-frag-order") ? +a.getAttribute("data-frag-order") : null;
+        var ob = b.hasAttribute("data-frag-order") ? +b.getAttribute("data-frag-order") : null;
+        if (oa != null && ob != null) return oa - ob;
+        if (oa != null) return -1;
+        if (ob != null) return 1;
+        return 0;
+      });
+      if (list.length < 2) { slide.__frags = []; return; }
+      list.forEach(function (el) { el.classList.add("frag-item"); });
+      slide.__frags = list;
+
+      var cur = document.createElement("div");
+      cur.className = "frag-cursor";
+      slide.__fitBox.appendChild(cur);
+      slide.__cursorEl = cur;
+    });
+
+    slides.forEach(function (slide, idx) {
+      if (idx === slides.length - 1) return;
+      var cue = document.createElement("div");
+      cue.className = "next-cursor";
+      var lab = document.createElement("span");
+      lab.className = "nc-label";
+      lab.textContent = "next";
+      var arrow = document.createElement("span");
+      arrow.className = "nc-arrow";
+      arrow.textContent = "▸";
+      cue.appendChild(lab);
+      cue.appendChild(arrow);
+      cue.addEventListener("click", function (e) { e.stopPropagation(); next(); });
+      (slide.__fitBox || slide).appendChild(cue);
+      slide.__cueEl = cue;
+    });
+  }
+
+  function fragsActive() {
+    return document.body.classList.contains("slideshow-mode") ||
+           document.body.classList.contains("presenter-mode");
+  }
+
+  function applyFrags(slide) {
+    if (!slide) return;
+    var frags = slide.__frags || [];
+    var shown = slide.__shown == null ? frags.length : slide.__shown;
+    frags.forEach(function (el, i) { el.classList.toggle("frag-hidden", i >= shown); });
+    updateCursors(slide);
+  }
+
+  function updateCursors(slide) {
+    if (!slide) return;
+    var box = slide.__fitBox;
+    var frags = slide.__frags || [];
+    var isCurrentInMode = fragsActive() &&
+      (slide.classList.contains("ss-current") || slide.classList.contains("pv-current"));
+    var cur = slide.__cursorEl, cue = slide.__cueEl;
+    if (!isCurrentInMode) {
+      if (cur) cur.classList.remove("on");
+      if (cue) cue.classList.remove("on");
+      return;
+    }
+    var shown = slide.__shown == null ? frags.length : slide.__shown;
+    var done = shown >= frags.length;
+    if (cue) cue.classList.toggle("on", done);
+    if (!cur) return;
+    if (!frags.length || shown === 0 || done) { cur.classList.remove("on"); return; }
+
+    requestAnimationFrame(function () {
+      var el = frags[shown - 1];
+      var br = box.getBoundingClientRect();
+      var fr = el.getBoundingClientRect();
+      if (!br.width || !box.offsetWidth) return;
+      var k = br.width / box.offsetWidth;
+      var top = (fr.top - br.top) / k + Math.min(fr.height / k, 22) / 2;
+      var left = (fr.left - br.left) / k;
+      cur.style.top = (top - 6) + "px";
+      cur.style.left = Math.max(0, left - 16) + "px";
+      cur.classList.add("on");
+    });
+  }
+
+  function goTo(i, scroll, reveal) {
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    var s = slides[current];
+    if (reveal === "start") s.__shown = 0;
+    else if (reveal === "all") s.__shown = (s.__frags || []).length;
+    if (document.body.classList.contains("slideshow-mode")) renderSlideshow();
+    else if (document.body.classList.contains("presenter-mode")) renderPresenter();
+    else if (scroll) s.scrollIntoView({ behavior: "smooth", block: "center" });
+    refreshNavState();
+  }
+  function refreshNavState() {
+    if (document.body.classList.contains("slideshow-mode") ||
+        document.body.classList.contains("presenter-mode")) return;
+    buildNav();
+  }
+
+  function syncCurrentToScroll() {
+    var mid = window.innerHeight / 2, best = 0, bestD = Infinity;
+    slides.forEach(function (s, i) {
+      var r = s.getBoundingClientRect();
+      var d = Math.abs((r.top + r.bottom) / 2 - mid);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    current = best;
+  }
+
+  var allReveal = false;
+  function renderSlideshow() {
+    slides.forEach(function (s, i) { s.classList.toggle("ss-current", i === current); });
+    var scale = Math.min(window.innerWidth / 1024, window.innerHeight / 576) * 0.96;
+    document.documentElement.style.setProperty("--ss-scale", scale.toFixed(3));
+    var c = document.querySelector(".slideshow-arrows .slide-counter");
+    if (c) c.textContent = (current + 1) + " / " + slides.length;
+    applyFrags(slides[current]);
+    typesetMath(slides[current]);
+  }
+  function enterSlideshow(all) {
+    allReveal = !!all;
+    document.body.classList.remove("presenter-mode");
+    document.body.classList.add("slideshow-mode");
+    document.body.classList.toggle("reveal-all", allReveal);
+    var s = slides[current];
+    if (allReveal) s.__shown = (s.__frags || []).length;
+    renderSlideshow();
+    if (deck.requestFullscreen) deck.requestFullscreen().catch(function () {});
+  }
+  function exitSlideshow() {
+    allReveal = false;
+    document.body.classList.remove("slideshow-mode", "reveal-all");
+    if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+    slides[current].scrollIntoView({ block: "center" });
+  }
+
+  var timerStart = null, timerInt = null;
+  function renderPresenter() {
+    slides.forEach(function (s, i) {
+      s.classList.toggle("pv-current", i === current);
+      s.classList.toggle("pv-next", i === current + 1);
+    });
+    var curScale = Math.min((window.innerWidth * 0.6) / 1024, (window.innerHeight - 160) / 576);
+    var nextScale = Math.min((window.innerWidth * 0.34) / 1024, (window.innerHeight * 0.4) / 576);
+    document.documentElement.style.setProperty("--pv-cur-scale", Math.max(0.2, curScale).toFixed(3));
+    document.documentElement.style.setProperty("--pv-next-scale", Math.max(0.15, nextScale).toFixed(3));
+    var num = document.querySelector(".pv-h-num");
+    if (num) num.textContent = (current + 1) + " / " + slides.length;
+    var fill = document.querySelector(".pv-h-progress-fill");
+    if (fill) fill.style.width = (((current + 1) / slides.length) * 100) + "%";
+    var callout = slides[current].querySelector(".bm-callout");
+    var tEl = document.querySelector(".pv-takeaway-content");
+    if (tEl) tEl.textContent = callout ? callout.textContent.trim() : "—";
+    applyFrags(slides[current]);
+    typesetMath(slides[current]);
+  }
+  function enterPresenter() {
+    document.body.classList.remove("slideshow-mode");
+    document.body.classList.add("presenter-mode");
+    if (!timerStart) { timerStart = Date.now(); timerInt = setInterval(updateTimer, 1000); updateTimer(); }
+    renderPresenter();
+  }
+  function exitPresenter() {
+    document.body.classList.remove("presenter-mode");
+    slides[current].scrollIntoView({ block: "center" });
+  }
+  function updateTimer() {
+    if (!timerStart) return;
+    var s = Math.floor((Date.now() - timerStart) / 1000);
+    var hh = String(Math.floor(s / 3600)).padStart(2, "0");
+    var mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+    var ss = String(s % 60).padStart(2, "0");
+    var txt = hh + ":" + mm + ":" + ss;
+    document.querySelectorAll(".pv-h-timer").forEach(function (e) { e.textContent = txt; });
+  }
+
+  function showHelp() { var o = document.getElementById("helpOverlay"); if (o) o.classList.add("shown"); }
+  function hideHelp() { var o = document.getElementById("helpOverlay"); if (o) o.classList.remove("shown"); }
+
+  function next() {
+    var s = slides[current];
+    if (fragsActive() && !allReveal && s.__frags && s.__shown < s.__frags.length) {
+      s.__shown++;
+      applyFrags(s);
+      return;
+    }
+    if (current < slides.length - 1) goTo(current + 1, true, allReveal ? "all" : "start");
+  }
+  function prev() {
+    var s = slides[current];
+    if (fragsActive() && !allReveal && s.__frags && s.__shown > 0) {
+      s.__shown--;
+      applyFrags(s);
+      return;
+    }
+    if (current > 0) goTo(current - 1, true, "all");
+  }
+  document.addEventListener("keydown", function (e) {
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    switch (e.key) {
+      case "ArrowRight": case " ": case "PageDown": case "ArrowDown":
+        e.preventDefault(); next(); break;
+      case "ArrowLeft": case "PageUp": case "ArrowUp":
+        e.preventDefault(); prev(); break;
+      case "Home": e.preventDefault(); goTo(0, true, "all"); break;
+      case "End": e.preventDefault(); goTo(slides.length - 1, true, "all"); break;
+      case "f": case "F":
+
+        if (document.body.classList.contains("slideshow-mode") && !allReveal) exitSlideshow();
+        else enterSlideshow(false);
+        break;
+      case "a": case "A":
+
+        if (document.body.classList.contains("slideshow-mode") && allReveal) exitSlideshow();
+        else enterSlideshow(true);
+        break;
+      case "s": case "S": case "p": case "P":
+        if (document.body.classList.contains("presenter-mode")) exitPresenter(); else enterPresenter(); break;
+      case "?": case "/": e.preventDefault(); showHelp(); break;
+      case "Escape":
+        var o = document.getElementById("helpOverlay");
+        if (o && o.classList.contains("shown")) hideHelp();
+        else if (document.body.classList.contains("slideshow-mode")) exitSlideshow();
+        else if (document.body.classList.contains("presenter-mode")) exitPresenter();
+        break;
+      default:
+        if (/^[1-9]$/.test(e.key)) {
+          var sec = SECTIONS[parseInt(e.key, 10) - 1];
+          if (sec) { var f = slidesInSection(sec.id)[0]; if (f != null) goTo(f, true, "all"); }
+        }
+    }
+  });
+  window.addEventListener("resize", function () {
+    if (document.body.classList.contains("slideshow-mode")) renderSlideshow();
+    else if (document.body.classList.contains("presenter-mode")) renderPresenter();
+  });
+  var scrollTimer = null;
+  window.addEventListener("scroll", function () {
+    if (document.body.classList.contains("slideshow-mode") || document.body.classList.contains("presenter-mode")) return;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(syncCurrentToScroll, 120);
+  });
+
+  window.__deckWidgets = window.__deckWidgets || {};
+  if (!window.registerWidget) {
+    window.registerWidget = function (id, fn) { window.__deckWidgets[id] = fn; };
+  }
+  function initWidgets() {
+    document.querySelectorAll("[data-widget]").forEach(function (el) {
+      var fn = window.__deckWidgets[el.dataset.widget];
+      if (typeof fn === "function") {
+        try { fn(el); } catch (err) { console.error("Widget " + el.dataset.widget + " failed:", err); }
+      }
+    });
+  }
+
+  function typesetMath(node) {
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      return window.MathJax.typesetPromise(node ? [node] : undefined).catch(function () {});
+    }
+    return Promise.resolve();
+  }
+
+  document.addEventListener("click", function (e) {
+    if (e.target.id === "helpOverlay") hideHelp();
+    if (e.target.classList && e.target.classList.contains("help-close")) hideHelp();
+  });
+  var ssPrev = document.querySelector(".slideshow-arrows .ss-prev");
+  var ssNext = document.querySelector(".slideshow-arrows .ss-next");
+  if (ssPrev) ssPrev.addEventListener("click", prev);
+  if (ssNext) ssNext.addEventListener("click", next);
+
+  function boot() {
+    wrapSlides();
+    buildNav();
+    addBadges();
+    initWidgets();
+    initFrags();
+    fitAll();
+    typesetMath().then(fitAll);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitAll(); });
+    setTimeout(fitAll, 1200);
+    var hint = document.querySelector(".help-hint");
+    if (hint) setTimeout(function () { hint.classList.add("faded"); }, 4000);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+  window.Deck = { goTo: goTo, next: next, prev: prev, enterSlideshow: enterSlideshow, enterPresenter: enterPresenter, showHelp: showHelp, fitAll: fitAll };
+})();
+
+</script>
+</body>
+</html>

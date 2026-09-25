@@ -1,0 +1,6 @@
+{
+  "name": "Building Autonomous AI Agents",
+  "description": "SMU Academy | Building Autonomous AI Agents Without Coding: LangChain, LangGraph, & MCP | 2026 Cohort by Prof. Sungjong Roh",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #222222;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  code, pre {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+/* Custom styling matching Squarespace clean editorial aesthetic */
+.content-prose p {
+  line-height: 1.7;
+}
+
+.content-prose a {
+  color: #111827;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #9ca3af;
+  transition: all 0.15s ease-in-out;
+}
+
+.content-prose a:hover {
+  text-decoration-color: #111827;
+  color: #000000;
+}
+

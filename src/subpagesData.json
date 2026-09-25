@@ -1,0 +1,422 @@
+{
+  "day1_slides": {
+    "title": "autonomousaiagents2026september-day1-lecture \u2014 Sungjong Roh",
+    "blocks": [
+      {
+        "tag": "li",
+        "text": "Day 1 &middot; Full End-to-End Building with AI Agents The screen first, then the back end &middot; Google AI Studio's Build agent, GitHub, Vercel, the LTA bus arrival service, and a key that never leaks Prof. Sungjong Roh, PhD Academic Director, Master of Science in Business Artificial Intelligence (MBAI) Lee Kong Chian School of Business &middot; Singapore Management University Building Autonomous AI Agents: LangChain, LangGraph & Model Context Protocol (MCP) &middot; September 2026 Cohort &middot; SMU Day 1 &middot; 09:00\u201318:00 &middot; you build in your group, at your table, with an AI agent writing the code The idea Today you build a whole product, end to end, and an AI agent writes the code. You tell Google AI Studio's Build agent what to make, you read what it made, and you decide what ships. By 10:30 your group has a screen on a live URL, and it works, and it also does nothing: whatever your user types, the same invented numbers come back, because there is no machinery behind the glass. The rest of the day puts something real behind it. Singapore publishes an unusual amount of live data for free, and by 18:00 your page will tell somebody standing outside this building when the next bus actually arrives. What we will leave with Your group has a live URL by 10:30: one screen that the Build agent wrote, GitHub keeps and Vercel serves.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "You hold an LTA DataMall account key in your own name, requested at 09:00 and delivered by email.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "You know why a key may never touch the browser, and where it lives instead.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "By 18:00 the same URL reads real bus arrivals through an /api function in your project, with a health check you can point at when somebody says it is broken.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Those /api functions are the tools that tomorrow's agent calls on Day 2.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "A note before we start",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "I &middot; Why your screen accepts input and gives nothing real back",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Think about the screen you deployed this morning. A visitor can type into it, tap it, filter it, and it responds instantly. It is also, in a specific sense, pretending. Everything it shows comes from sample numbers written into the code, so no matter what the visitor asks, the answer was decided before they arrived.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Three things live behind the glass in a working product, and this morning's screen has none of them.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Data that is true at this moment. Not a list you typed, but a number that changes while the page is open, arriving from somewhere that knows.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Something that computes. A rule, a lookup or a model that turns what the user asked into an answer nobody wrote down in advance. This is the part the industry sells as Algorithm-as-a-Service , and it is what makes a product a service rather than a page.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Somewhere to keep a secret. The moment you use a service that knows who you are, you hold a credential, and a credential cannot live in a browser.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "What Singapore publishes, free, right now",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Your product no longer needs to invent its data. Every service below except URA was called live on 24 September 2026, and URA was checked against its published API reference. Read the second column carefully, because \"free\" and \"no limit\" are not the same thing, and one of these is out of scope for a course exercise.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "II &middot; An API is an address that answers in a format a program can read",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "There is less mystery here than the acronym suggests. When you open a web page, a server sends back something arranged for a human eye. When your code calls an API, a server sends back the same kind of thing arranged for a program: labelled fields, no decoration, ready to be picked apart.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "{ \"BusStopCode\": \"01012\", \"Services\": [ { \"ServiceNo\": \"7\", \"NextBus\": { \"EstimatedArrival\": \"2026-09-09T14:22:31+08:00\", \"Load\": \"SEA\", \"Type\": \"DD\" }, \"NextBus2\": { \"EstimatedArrival\": \"2026-09-09T14:31:07+08:00\", \"Load\": \"SDA\", \"Type\": \"SD\" } } ] } Copy This shape is called JSON , and it is the whole vocabulary you need. Braces hold labelled fields, square brackets hold lists, and you reach a value by naming the path to it. Notice that LTA gives you a timestamp , not a number of minutes: turning one into the other is your code's job, and it is the first thing that will look wrong on screen. Principle The field names in that answer are facts, not guesses. Call the endpoint once, look at what actually comes back, and paste those real lines into your prompt. An agent asked to guess the path will invent something reasonable, and reasonable is not the same as correct. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Which way the request travels, and why only one way works Prof. Roh's Interactive Explainer \u2014 straight from the browser through your own function \u2014 The browser rule that surprises people. A page is not allowed to read a response from another site unless that site explicitly permits it, by sending a header that says so. LTA sends no such header. Worse, because your call carries the AccountKey header, the browser sends a silent permission request of its own first, and LTA refuses it with a 403 and no permission header, so your real request never leaves the browser at all . Even without the header, the browser would not let your page read LTA's reply. This is a browser protection, not an LTA fault, and it exists precisely because pages should not be able to quietly read other people's services. Why the detour solves both problems at once. Your page calls /api/bus , which is your own address, so there is no permission question to answer. Your function then calls LTA from a server, where headers are private and browser rules do not apply. One small change of route, and both the secrecy problem and the permission problem disappear together. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business III &middot; What LTA DataMall gives you, and what it asks in return What you can read The Land Transport Authority publishes the network as it is running right now. Bus arrivals refresh every twenty seconds. Alongside them sit carpark availability across HDB, LTA and URA sites, traffic incidents, train service alerts, and the location of every electric vehicle charging point. Today you use exactly one of these, and the rest are there when your product needs them. The same credential for everybody. There is no developer key and production key to choose between, and no upgrade to ask for. Every key is the same kind, each person has their own, and LTA's terms set a ceiling of ten million calls a day per key, which LTA may change or enforce without warning. A room of thirty refreshing all afternoon does not come close to it. What you owe them Attribution Mandatory. A visible source notice with a link to the licence has to appear in your deployed app. There is a copyable line in section VII, ready to paste. Commercial use Allowed, both by the API terms and by the Singapore Open Data Licence. You may build a business on this. Never imply endorsement The Singapore Open Data Licence version 1.0 forbids suggesting official status or LTA endorsement. This one catches people at the naming stage, so choose a name that is clearly yours. Your key is yours alone Each person requests their own key and keeps it secure and confidential. LTA's terms require this, so do not share it, even with teammates. Free means free of charge It does not mean free of obligation. The attribution line is not decoration and takes thirty seconds to add , so add it while you are building rather than promising yourself you will add it before the demonstration. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Requesting the key: what you click, in order You submitted this at 09:00. If you did not, do it now, on a laptop.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Open datamall.lta.gov.sg and scroll down to the section headed Dynamic Data . Dynamic Datasets in the top menu has the same button.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Click Request for API Access , the left button, not API Documentation .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Name : type it in plain English letters. An accent, a Chinese character or a curly quote stops the form.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Email : an address you can open here today, because the key is sent there.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Contact No : leave the flag on Singapore +65 and type your 8-digit number. For an overseas number, choose the country from the flag first.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Company Name is optional. Leave it blank or type your organisation.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Under Purpose of Usage , tick Website/Portal , because what you deploy today is a website.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Description is optional. Type one plain sentence rather than pasting it from Word.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Type the characters from the picture into the small box to its left . If you cannot read them, click the blue Refresh .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Tick the first box, which accepts the Singapore Open Data Licence and the Terms of Service for API and SDK. The mailing-list box is optional.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Click the blue Submit on the right . The dark Reset on the left clears the form.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "When the browser asks Confirm submission? , click OK and wait for a confirmation message to replace the form.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "The endpoint, and six stops you can walk to",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "GET https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121 Header: AccountKey: [your key from the email] # BusStopCode is the only required parameter. # Add &ServiceNo=7 to ask about one service only. # Refreshes every 20 seconds. JSON comes back by default. Copy Check your key once, from Terminal (Mac) or PowerShell (Windows) Type read -s LTA_KEY on a Mac, or $k = Read-Host \"Paste LTA key\" on Windows, and press Return . Paste your key and press Return . On a Mac nothing appears, and that is expected. Click Copy on the line for your machine, the first for a Mac and the second for Windows, paste it and press Return . Read the last line. HTTP status: 200 means your key works. curl -sS -w \"\\nHTTP status: %{http_code}\\n\" -H \"AccountKey: $LTA_KEY\" \"https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121\" Copy curl.exe -sS -w \"\\nHTTP status: %{http_code}\\n\" -H \"AccountKey: $k\" \"https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121\" Copy The Windows line says curl.exe because in Windows PowerShell plain curl is a different command. The address bar cannot send the header, so it always answers 404. Section VII repeats this when you need the JSON for the master prompt. Stops around this building Code Description Road 04121 SMU \u2014the default Stamford Rd 04179 Aft Bras Basah Stn Exit A Bras Basah Rd 01012 Hotel Grand Pacific Victoria St 04151 Cath of The Good Shepherd Victoria St 04159 Aft CHIJMES Victoria St 08069 Bencoolen Stn Exit B Bras Basah Rd Use 04121. It is seventy metres from the School of Accountancy and seventy-three from SMU Connexion, so you can stand at the physical stop and compare it with your own screen. Around thirty services call there, but many run only at peak hours, so the board shows fewer in the afternoon. Two version traps. Bus Arrival has been v3 since August 2024. The old BusArrivalv2 path from older tutorials now returns 404 The requested API was not found , exactly like a missing key, so a pasted old URL looks like a key problem. The ERP Rates API was removed on 30 September 2024, so a guide that still describes it is out of date elsewhere too. The leading zero is part of the code A stop code is five digits , and community websites strip the leading zero: one popular site displays our stop as \"B/S 4121\". The code you type is 04121. If your screen is empty and your key is right, count the digits before you blame anything else. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business The error that will cost you an hour, and the one that saves it Different failures, different codes Almost every service answers a missing credential with 401 , which says plainly what is wrong. LTA does not, and its exact behaviour hands you a free diagnostic. These are real responses, checked live on 24 September 2026. What you sent Code Body No AccountKey header at all 404 The requested API was not found Header with an empty value, e.g. code that falls back to '' 404 the same as no header Header present, wrong key 401 nothing at all, an empty body Variable never set , so your code sends the word undefined 401 identical to a wrong key , which is the trap below Mis-cased path, or the old BusArrivalv2 404 the same as a missing key BusStopCode missing or wrongly capitalised 403 an HTML Access Denied page Why the shaded row matters most. If your Vercel variable was never saved, or was saved and never redeployed, then process.env.LTA_ACCOUNT_KEY is undefined . JavaScript does not drop that header: it sends the nine-letter word undefined , and LTA answers 401 , byte for byte the same as a genuinely wrong key. So the commonest failure of the afternoon and the one everybody guesses first look identical from the outside , which is why the function has to say which it was. Read the code, then act 404 The header never arrived, arrived empty, or the path is wrong. Check, in this order: is the header spelled AccountKey , one word, because accountkey is fine but Account-Key is a different header; does it carry a value at all; is the path spelled with the documentation's capitals, because /v3/Busarrival is a 404 even with a correct key. Plain http is not a cause: LTA redirects it to https and fetch follows. 401 Some value arrived and LTA refused it. Two different faults land here and you cannot tell them apart from the outside, so read /api/health first . If keyConfigured is false, the variable is missing or you never redeployed. If it is true, the value itself is wrong, so re-copy it from the email and watch for a trailing space. 403 An Access Denied page means the stop code never arrived. The parameter must be spelled BusStopCode exactly, with those capitals. Getting a 401 after a string of 404s is still progress : the address and the header name are now right, and the whole chain from your page to your function to LTA is connected. What remains is the value, and keyConfigured tells you whether the value is wrong or simply absent. Principle An error message is a claim the system makes about itself, and systems are often unhelpful about their own failures. Learn what your service does when it is unhappy , because the textbook meaning of a code is not always the local one. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business IV &middot; What a key actually is, and why anyone would want yours An API key is not quite a password. A password proves you are you, so that a service can show you your own things. A key is closer to a name badge worn by your software: it tells the provider which caller this is, so they can count the calls, apply the limits, and switch you off if you misbehave.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Nobody steals an LTA key because they are desperate to know when the 174 arrives. They take it for three other reasons, and all three apply to a project built in a day.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "To spend what is yours. A key carries a quota. Someone else's traffic on your key exhausts your limit, and your product stops working with no fault of its own.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "To act in your name. Every call made with your key is recorded as yours. If it is used to hammer a government service, the record says you did it.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Because keys travel in packs. Automated scanners collect them wholesale from public code. A key that works is worth trying against other services, and the person who finds yours is a script, not a person who read your project and admired it.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "Where a key leaks, and who ends up holding it",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "The rules that keep a key private, and the one people get backwards",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "V &middot; The same toolchain, with one new folder inside it",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "Station A &middot; Google AI Studio: what you click, in order",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Go to aistudio.google.com/apps . The short link ai.studio/build lands on the same page.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Sign in with a personal Google account, not a work one, whose admin may have switched AI Studio off. On a first visit, accept the Terms of Service.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Describe the one screen you want in the prompt box, then send it with the button beside the box.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Wait while the agent writes the files, then check that the preview on the right shows your screen.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Open the same app from your list at aistudio.google.com/apps .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Paste the master prompt from the next slide into the chat panel and send it.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Open the Code tab. api/bus.js and api/health.js must sit at the root beside package.json , not in src , because that is what Vercel runs.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Check that server.ts at the root registers /api/bus and /api/health , because that is the file the preview runs. If it is missing, ask the agent for it.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Check that the key is read with process.env.LTA_ACCOUNT_KEY and appears as text nowhere.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Click the gear at the top right, open Secrets , and add LTA_ACCOUNT_KEY with your key. If the agent shows a card in the chat asking for it, paste it there instead.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Reload the preview and check that arrival times appear.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "The prompt that writes it &middot; copy this, then fill the one bracket",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "ROLE: You are a senior full-stack developer working in this existing Vite + React project. GOAL: Add a live bus arrival panel to the screen, fed by two new serverless functions. 1) api/bus.js\u2014accepts a BusStopCode query parameter, defaults to 04121, calls https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival and returns a simplified list: for each service, the ServiceNo and the minutes until each of the next two buses, worked out from the EstimatedArrival timestamps. 2) api/health.js\u2014reports whether the key is configured (keyConfigured) and whether LTA answered, including the upstream HTTP status code, for checking the service without opening the app. It must never print the key or any part of it. 3) On the screen, a panel listing each service with its next two arrivals in minutes, refreshing every 20 seconds, which matches both the cache below and how often LTA itself updates, rounding down to whole minutes as LTA's guide asks, showing \"Arriving\" under one minute, and showing a plain sentence when a service has no buses running. OUTPUT: Write the two handlers TWICE, in the two shapes this toolchain needs. (a) Standalone files at api/bus.js and api/health.js in the PROJECT ROOT, siblings of package.json and never inside src/. This is the form Vercel runs. (b) The same two routes registered as Express routes in server.ts at the project root, the file the preview runs (package.json, scripts, dev: tsx server.ts), as app.get(\"/api/bus\") and app.get(\"/api/health\"), importing the shared handler rather than duplicating the logic. If this project has no server.ts, create one. This is the form the AI Studio preview runs. Neither form works in the other place, so I need both. Make sure package.json contains \"type\": \"module\", which Vercel requires for .js files in api/ outside a framework; otherwise name the two files api/bus.mjs and api/health.mjs. Read the credential with process.env.LTA_ACCOUNT_KEY and send it as the HTTP header named exactly AccountKey. BEFORE the fetch, if that variable is missing or empty, return 503 with {\"error\":\"LTA_ACCOUNT_KEY is not set. Add it in Vercel and redeploy.\"} and do not call LTA at all; never let an unset variable reach the header, because JavaScript sends the word \"undefined\" and LTA answers 401 exactly as it would for a wrong key. AFTER the fetch, check response.ok before reading the body. LTA returns an empty body on 401, so calling response.json() on a failed reply throws and crashes the function. On a non-2xx reply, return the upstream status and a one-line reason in your own JSON instead. Set Cache-Control: s-maxage=20, stale-while-revalidate=40 on the bus response, because LTA refreshes every 20 seconds. Treat an empty Services array as \"no buses running\", not as an error. Note also that LTA returns NextBus2 and NextBus3 as objects whose fields are all empty strings when there is no such bus: treat an empty EstimatedArrival as no bus and omit it from the list, rather than computing a time from it. Never emit NaN or null as a minute. In the footer, add this exact line, which is what the licence asks for, with the licence address as a working link: \"Contains information from LTA DataMall Bus Arrival accessed on [DATE] from the Land Transport Authority (LTA DataMall), which is made available under the terms of the Singapore Open Data Licence version 1.0 https://data.gov.sg/open-data-licence. This is an SMU course project and is not affiliated with or endorsed by the Land Transport Authority.\" Leave my existing screens working. GUARDRAILS: Never write the key into any file, any comment, or the README. Never create a variable whose name starts with VITE_. Never call datamall2.mytransport.sg from browser code; every LTA call happens inside api/. Never print the key, or any part of it, in a response or a log. No new npm packages. No database, no login. Do not use LTA's name or logo in a way that suggests this app is official or endorsed. CONTEXT: Deployed on Vercel from GitHub. The key lives only in environment variables named LTA_ACCOUNT_KEY: AI Studio's Secrets for the preview, Vercel for the live site. A real response from the endpoint looks like this: [PASTE 15\u201325 LINES OF THE REAL RESPONSE HERE] Copy The last line is the one people skip. Call the endpoint once from Terminal or PowerShell, as in section III or on the numbered slide in section VII, and paste what actually comes back into the CONTEXT block. An agent asked to guess the field names will invent something reasonable , and reasonable is not the same as correct: guessed paths are the single most common reason a panel shows undefined where a number should be. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Stations B and C at 09:15: the first push and the first deploy B &middot; GitHub, first time only Sign in to your personal GitHub account in the same browser. A free account is enough. In AI Studio, open your app, click the gear at the top right, and open the GitHub tab. Click Sign in to GitHub . On github.com, install and authorise the Google AI Studio app on your personal account, not an organisation. Back in the GitHub tab, choose Create new repository . Type a Repository name , for example bus-board , and choose Private . Click Create GitHub repository . It creates the repository on main , and this is your first push. Check that the tab reads In Sync and that your files appear on github.com. If the screen differs: GitHub's install page was not checked and may ask for all repositories or only selected ones; either works. If AI Studio keeps returning to Sign in to GitHub , uninstall the app at github.com/settings/installations and try again. C &middot; Vercel, first deploy Open vercel.com/signup and click Continue with GitHub . Approve Vercel on GitHub's screen with the same personal account. Stay on the free Hobby plan and do not start a Pro trial. Go to vercel.com/new , or click Add New&hellip; then Project on the dashboard. If Vercel asks to connect GitHub, install its app on your personal account, choose Only select repositories , and tick your repository. Under Import Git Repository , click Import next to your repository. If it is missing, click Configure GitHub App and add it. Check that Framework Preset reads Vite . If it says Node or Express, change it to Vite. Leave Root Directory as it is. Click Deploy and wait for the build to finish. Open the project, copy the address under Domains ( your-project.vercel.app ) and open it on a phone. Share the Domains address, not the long deployment URL, which asks visitors to log in to Vercel. If the page is blank, open the browser console: in Chrome, right-click, choose Inspect , then Console . Keep it personal The driver owns all three: the AI Studio app in a personal Google account, and the repository and the Vercel project in a personal GitHub account, not a company or group organisation, because the free Hobby plan will not deploy a private organisation repository. After this first push, every change goes out with Push Changes and Vercel redeploys from main on its own. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Station C &middot; Vercel: where the key lives, and the step everyone forgets Open your project, click Settings in the sidebar, then Environment Variables . Click the button that adds a variable. A panel titled Add Environment Variable opens. Under Type , click Secret , the left card, not Config. Since 24 August 2026 this replaces the old Sensitive switch; some Vercel help pages still show the switch, so ignore them. In Key , type LTA_ACCOUNT_KEY , spelled exactly as your code reads it. Paste the key into Value . Click the eye icon to check for a trailing space, because a Secret cannot be read back after saving. Open the Environments dropdown and make sure Production is selected. Add Preview too if you want preview links to work. Click Save . Your live site still does not have the key at this moment. Click Deployments in the sidebar, then the &hellip; on the newest deployment. Choose Redeploy . In the Redeploy to Production window, click Redeploy . When it shows Ready, open /api/health on your live address and check for keyConfigured: true . If the screen differs: the name of the button in step 2 was not checked on a signed-in page, so look for the control that adds a new variable. If you remember one thing A saved variable and a working site are two different states. The commonest failure in this room today will be a variable saved but never redeployed. With the master prompt's guard, /api/bus answers 503 and says the key is not set; if the agent skipped the guard, the word undefined goes out and LTA refuses it with a 401, exactly as it would refuse a wrong key. The fix takes fifteen seconds once you know to look, and keyConfigured is what tells you to look there. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business VI &middot; What came back, and what it is telling you Prof. Roh's Interactive Explainer \u2014 Click a code. The four colours are four different people whose problem it is. \u2014 The distinction worth internalising is between a code that says you asked wrongly and one that says we broke . The first is yours to fix and usually takes a minute. The second is not yours, cannot be fixed by re-prompting, and needs your product to say something calm to its user rather than showing them a blank rectangle. A 200 does not mean your screen will fill. If the call succeeded and the panel is still empty, the call was never the problem: you are reading the wrong path inside a perfectly good answer. Print the raw response and compare its field names with what your code is asking for. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Build a second address whose only job is to answer \"is it working?\" What a health check reports GET /api/health \u2192 200 when healthy, 503 when not { \"status\": \"pass\", \"time\": \"2026-09-09T14:22:31+08:00\", \"checks\": { \"keyConfigured\": true, \"upstream\": { \"status\": \"pass\", \"httpCode\": 200, \"ms\": 214 }, \"lastGoodFetch\": \"2026-09-09T14:22:11+08:00\" } } Copy Notice what is absent. The key itself never appears, and neither does the first four characters of it, nor its length. keyConfigured: true answers the only question worth asking, which is whether the variable arrived, and reveals nothing to whoever else opens this address. Why this is worth ten minutes When a teammate says \"it is broken\", that sentence contains no information. A health endpoint turns it into a question with an answer, checkable from a phone in the corridor, without opening the app or reading any code. keyConfigured false means the variable is missing or you never redeployed. This one line settles the afternoon's commonest failure, which shows up as a 503 from the guard or, if the agent skipped it, as a 401 identical to a wrong key. upstream Tells you whether LTA answered you, which separates their bad morning from your bad code. lastGoodFetch If this is recent but the screen is empty, the fault is in the display, not the data. One subtlety. An empty list of buses is not a failure. LTA returns nothing when a service is not running, so a health check that calls that a failure will cry wolf every night after the last bus. Principle A system that cannot report on itself can only be debugged by the person who built it. Ten minutes spent on a health endpoint buys every future person, including you tomorrow, a way in \u2014and on Day 2 the caller is an agent that uses this address as a tool, which is where this instinct becomes monitoring and evaluation. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Where to look when it breaks, in the order that saves time Look here What it tells you, and what it does not 1 Your own /api/health Open it in the address bar. It answers the two questions that cause most failures: did the key arrive, and did LTA answer. Start here because it costs three seconds. 2 Vercel &rarr; Logs The runtime logs, in the project sidebar. Every row shows its own status code, and Vercel colours the two failure families for you: amber for anything in the 400s, which is your request, and red for the 500s, which is the server. On the free plan these are kept for one hour , so look before the break, not after it. Times in Logs are UTC, eight hours behind Singapore. 3 Build logs , a different place Reached from the deployment tile, not the Logs tab, and kept for as long as that deployment is kept, at least thirty days on the free plan. They stop the instant the build finishes, so they can never explain a broken /api . A green deployment serving a failing function is a runtime problem by definition, and the log you can still see is usually not the one you need. 4 The status pages status.data.gov.sg and vercel-status.com . Use them last, and read the first one carefully: you will see a wall of green covering twenty-three services, but its LTA section is just Traffic Images and Taxi Availability , and bus arrivals are not watched at all, so none of that green says anything about your problem. There is no live status page for DataMall itself; it announces planned maintenance only as a banner on datamall.lta.gov.sg . Two error names worth recognising. A 500 from your function appears as FUNCTION_INVOCATION_FAILED , which means your code threw. A 504 with the code FUNCTION_INVOCATION_TIMEOUT means your function ran for five whole minutes without answering: usually a missing response, or a call with no timeout. A 504 without that code is probably LTA's own, relayed by your function. The blank white page. If the deployment is green and the page is blank, nothing failed to build: something failed while running in the browser. That is the browser console, not Vercel, which you met at 09:15 when the screen was first deployed. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Why you cache, and why twenty seconds is the right number Prof. Roh's Interactive Explainer \u2014 cache for 20 s room of 30 \u2014 Vercel caches no function response by default. Your static files are cached for you, but an answer from /api is not, so a page that does nothing special calls LTA on every single view. Note also that every redeploy starts the cache empty, because Vercel keeps cached answers with the deployment that produced them, so an afternoon of frequent redeploys is an afternoon of misses. One line in your function fixes it: Cache-Control: s-maxage=20, stale-while-revalidate=40 . The first number says how long a copy stays fresh, and the second lets a visitor have the slightly stale copy instantly while a new one is fetched behind them. How to prove it is working. Vercel removes s-maxage and stale-while-revalidate before the response reaches the browser, so you will never find them in the developer tools and their absence is not a bug. Read x-vercel-cache instead: MISS on the first call, HIT inside twenty seconds, STALE between twenty and sixty, which means you got the stored copy while a fresh one was fetched, and MISS again after a quiet minute. All of these mean the cache is working. Keep the developer tools' Disable cache box unticked. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business VII &middot; Group build: make the screen tell the truth &middot; 14:30\u201315:40 &middot; one product per group The core, which every group ships 1 An arrival board for stop 04121 , listing each service with the next two buses in minutes. 2 Every LTA call made inside /api , with the key in a Vercel Secret variable and in AI Studio's Secrets panel for the preview, and nowhere else. 3 A working /api/health that reports whether the key arrived and whether LTA answered, and never prints the key. 4 A cache of twenty seconds on the bus response, and the attribution line in the footer. 5 Something sensible on screen when a service has no buses running , because an empty answer is normal and not an error. Then take it somewhere of your own A bus board is where every group starts, not where any group stops. Join a second Singapore service and you have a product rather than a readout. The next slide lists the combinations that work, and each group should pick a different one so that show and tell is worth sitting through. You build the join from 16:00 to 17:15, after the core is live. Roles at the table. One driver with the laptop and the accounts: the AI Studio app, the GitHub repository and the Vercel project all belong to the driver. One navigator reading this deck aloud and calling the next step. Everyone else on phones, opening the URL and reading the first red line of any error out loud. Swap who types once, halfway, on the same laptop and accounts. The checkpoint at 15:40 Your production URL opens on a phone that is not the driver's , and the minutes on the screen match the bus stop downstairs. Share the address listed under Domains in Vercel, your-project.vercel.app , not the long deployment URL, which asks visitors to log in to Vercel. Walk out and look : that comparison, made with your own eyes, is the entire point of choosing buses over something cleverer. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Pick a second service, and turn a readout into a product One per group, and no two groups take the same one. Each of these joins today's bus data to a second service so the screen answers something a bus board on its own cannot.",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "The sequence, and the proof at each step",
+        "links": []
+      },
+      {
+        "tag": "h2",
+        "text": "Calling the endpoint once, from Terminal or PowerShell",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Press Cmd + Space , type Terminal and press Return .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Type read -s LTA_KEY and press Return .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Paste your AccountKey with Cmd + V and press Return . Nothing appears on screen, and that is expected.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Click Copy on the line below, paste it into Terminal and press Return .",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Read the last line. HTTP status: 200 , with text above it that starts {\"odata.metadata\" , means it worked.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Select the JSON, copy it with Cmd + C and paste it into the CONTEXT block of the master prompt.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Type unset LTA_KEY and press Return , or close the window.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "curl -sS -w \"\\nHTTP status: %{http_code}\\n\" -H \"AccountKey: $LTA_KEY\" \"https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121\" Copy On Windows: PowerShell Press the Windows key, type PowerShell and open Windows PowerShell or Terminal . Type $k = Read-Host \"Paste LTA key\" and press Enter . Paste your AccountKey with a right-click or Ctrl + V and press Enter . Click Copy on the line below, paste it into PowerShell and press Enter . It says curl.exe , not curl , because in Windows PowerShell curl is a different command that rejects these options. Read the last line. HTTP status: 200 , with JSON above it, means it worked. Select the JSON, copy it with Ctrl + C and paste it into the CONTEXT block of the master prompt. Type Remove-Variable k and press Enter , or close the window. curl.exe -sS -w \"\\nHTTP status: %{http_code}\\n\" -H \"AccountKey: $k\" \"https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=04121\" Copy If your screen differs and PowerShell answers with a red error about a parameter, check that the line starts with curl.exe . If the last line is not 200. 401 means the key is wrong, so repeat steps 2 to 4 and paste it again. 404 means a typo in the header name or the address. 403 , with an Access Denied page, means BusStopCode is missing or wrongly capitalised, and it must be spelled exactly that way. Why Terminal and not the browser The address bar cannot send a header, so it always answers 404, and the browser blocks a console fetch from any other site. Terminal is the simplest place to make this call by hand. The key never appears in the command itself, which is why step 2 reads it into a variable first. You do this once, to learn the field names; after that, only your function calls LTA. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business What you are aiming at, by 15:40 SMU &middot; Stamford Rd 04121 &middot; updated 8s ago 7 Arriving seats available &middot; double deck 14 4 min standing available 16 9 min seats available 111 12 min seats available &middot; wheelchair 175 \u2014 not running at this hour Contains information from LTA DataMall Bus Arrival, accessed [today's date] from the Land Transport Authority, which is made available under the terms of the Singapore Open Data Licence version 1.0, data.gov.sg/open-data-licence The attribution line, ready to paste Contains information from LTA DataMall Bus Arrival accessed on [DATE] from the Land Transport Authority (LTA DataMall), which is made available under the terms of the Singapore Open Data Licence version 1.0 https://data.gov.sg/open-data-licence. This is an SMU course project and is not affiliated with or endorsed by the Land Transport Authority. Copy Replace [DATE] with the day you called LTA, or ask the agent to show the current date there. The licence requires a visible source notice with a link to the licence. The last sentence is not politeness either. The licence forbids suggesting official status or LTA endorsement , and a bus app is exactly the kind of thing a passer-by would assume is official unless told otherwise, so choose an app name that is clearly your own. Look at the last row A service with no buses running shows a plain sentence rather than a zero, a blank, or an error. Deciding what your product says when it has nothing to say is design work , not an edge case to handle later, and it is the difference between a demonstration and something a person could actually rely on. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business When it breaks, part one: the failures of wiring What you see What is actually wrong The boundary it teaches 404 from LTA at an address you believe is right The header never arrived, its name is misspelled ( Account-Key ), or the path is mis-cased. Code that sends an empty string for a missing variable also lands here. Plain http is not a cause: LTA redirects it to https . read the address one character at a time before you touch the key 403 with an HTML page saying Access Denied The BusStopCode parameter is missing or wrongly capitalised. It must be spelled BusStopCode exactly. the parameter name is case-sensitive, just like the path 404 from your own /api/bus Vercel never built a function there. The file is inside src/ or misnamed, the Framework Preset is not Vite, or the live deployment is older than your push. check the file tree on GitHub: if api/ is not at the root there, no amount of redeploying will help 401 with an empty body Two faults land here and look identical. Either the value is wrong, usually a trailing space from the email, or the variable was never set, the agent skipped the 503 guard, and your code sent the word undefined , because that is what JavaScript does with a missing value. read keyConfigured from your health endpoint; it is the only thing that separates them The key is readable in the deployed page It was typed into a file, or it was given a name beginning VITE_ . the prefix decides the audience, and VITE_ means everyone Green deployment, blank white page The build succeeded and the code failed while running in the browser. a build log cannot explain a runtime failure, so open the browser console Read the two together A 404 and a 401 look equally like failure and point in different directions. The 404 is about the address and the header; the 401 is about the value inside the header. Neither tells you whether you forgot to redeploy, which is why the health endpoint you built is the first thing to open rather than the last. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business When it breaks, part two: the failures of data and of time What you see What is actually wrong The boundary it teaches The panel is empty, but the call returned 200 You are reading a path that does not exist inside a perfectly good answer. print the real response, because guessed field names are the top cause Only four digits in the stop code The leading zero was dropped, because community sites display the code stripped. an identifier is a string, and never a number The function returns 504 If the error page or the Logs row says FUNCTION_INVOCATION_TIMEOUT , your function ran for five minutes without answering, usually a missing response or a call with no timeout. A 504 without that code is probably LTA's own, passed through by your function. read the error code before you blame LTA: only that name means your own function hung Nothing listed after midnight Nothing is wrong. Services are not running, and LTA answers with an empty list. an empty answer is not an error, and your screen has to say so in words The logs are empty the next morning Runtime logs are kept for one hour on the free plan. Their times are in UTC, eight hours behind Singapore. look while it is broken, rather than after the break Show and tell Every URL goes on the screen at 17:15. Groups whose build broke present the failure : name what you saw, then name the boundary it turned out to be. Those are the most useful two minutes of the day for everybody else in the room. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business What to take away Question The answer this session gives you What was the 10:30 screen missing? Data that is true now, something that computes, and a private place for a secret. The rest of the day added the first and the third; the computing half is the model, and tomorrow's agent reaches it through this identical pattern. What is an API? An address that answers in a format a program can read. Four parts go out: address, parameters, headers, method. Two come back: a status code and a body. Why route through my own function? Two reasons at once. The browser will not read a response from a service that does not permit it, and a key in the browser is a published key. The detour solves both. Where does the key live? In a Vercel environment variable whose Type is Secret, read with process.env inside /api , and in AI Studio's Secrets panel for the preview. Never in the code, never in the repository, never in a prompt, never behind a VITE_ name. What does LTA do when it is unhappy? 404 when the header never arrived or the address is wrong, 403 when BusStopCode is missing or mis-cased, 401 when some value arrived and was refused. A missing variable lands on 401 too when the code has no 503 guard, because JavaScript sends the word undefined rather than nothing, so your own health endpoint is what tells a wrong key from a missing one. How do I know it is working? A health endpoint you built, checked before the app; then the Logs tab within the hour; then the status pages, remembering that they do not watch bus arrivals. When is it a product? When two sources meet and answer a question neither could alone, and when the screen still says something sensible at one in the morning with no buses running. Principle You have now built the shape that every keyed service in this course will use: a credential on the server, a function in the middle, a page that only ever talks to its own address. Tomorrow a model sits in front of those functions and decides which one to call , and that is an agent: Day 2 builds it with LangChain, LangGraph and MCP. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Tonight, before Day 2 What to do tonight 1 Keep the page alive and change one thing on it. Add a second stop, or make it say something friendlier when nothing is running, then push from AI Studio and watch Vercel deploy it. The point is that the loop from prompt to push to live URL stays warm in your hands. If LTA stops answering, look for a maintenance banner on the datamall.lta.gov.sg home page, which is where LTA announces planned outages. 2 Bring the URL and the key. Note the production address listed under Domains ( your-project.vercel.app ) and check that /api/health still says keyConfigured: true . If your group ran on the driver's key today, request your own tonight: LTA's terms ask you to keep a key secure and confidential, so do not share it, even with teammates. 3 Come back at 09:00 for Day 2. You build agents with LangChain, LangGraph and MCP , and the /api functions you deployed today become the tools those agents call. Check tonight that /api/bus still answers, because tomorrow's agent calls it. Why the product came before the agents An agent is a model that decides which tool to call and what to pass it. Every one of those tools is a function like the one you deployed today: a key on the server, a request to a service, and an answer returned in a format a program can read. You have now built that end to end once , with an agent writing the code and you checking what it wrote. Tomorrow's frameworks assume you already know what a key is, where it lives, what a function does, and how to tell whether something is working. You learned all four today, on data you could check by walking downstairs. One last thing Walk past stop 04121 on your way out and look at the display. Your screen and that screen are now reading the same feed , which was not true of the screen you shipped at 10:30. Building Autonomous AI Agents &middot; Day 1 &middot; Full End-to-End Build Prof. Sungjong Roh, PhD &middot; SMU &middot; Lee Kong Chian School of Business Thank You for Being Curious Prof. Sungjong Roh, PhD Building Autonomous AI Agents &middot; Day 2 tomorrow at 09:00 &middot; TalkToRoh.com Academic Director, MBAI &middot; Lee Kong Chian School of Business &middot; SMU &middot; Day 1 &middot; September 2026 Cohort Press ? for shortcuts \u00b7 F step-reveal \u00b7 A all-at-once \u00b7 S presenter &times; Navigation & shortcuts &rarr; Space Reveal next point &middot; then next slide &larr; Hide last point &middot; then previous slide Home End First / last slide 1 \u2013 9 Jump to section F Fullscreen &middot; content revealed point-by-point A Fullscreen &middot; everything shown, move slide-by-slide S Presenter view (current + next + timer) Esc Close / exit mode Building Autonomous AI Agents \u00b7 Day 1 \u00b7 Full End-to-End Build \u00b7 SMU",
+        "links": [
+          {
+            "href": "https://talktoroh.com",
+            "text": "Prof. Sungjong Roh, PhD"
+          }
+        ]
+      }
+    ]
+  },
+  "sg_apis": {
+    "title": "autonomousaiagents2026cday2-sg-apis \u2014 Sungjong Roh",
+    "blocks": [
+      {
+        "tag": "h3",
+        "text": "A note from Prof. Roh",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Dear Team,",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "You now hold more than one key. The Gemini key came first; the government data APIs on the reference card add more, and each provider hands you its credential in a slightly different shape. Some give you one string. Some give you a token that arrives inside a JSON response. Some hand you an entire JSON file and call it a key. And every single one of them, without exception, answers your requests in JSON.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Here is the good news: the shape of the credential changes nothing. The discipline you learned this morning is three sentences long, and it covers every case on this page. The browser never sees a secret. The server reads secrets from environment variables. A variable binds only when a deployment is built, so changing one means redeploying. String, token, or file\u2014those three sentences do not move.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "What does change is the handling. A JSON credential has quotes and line breaks that will fight your environment variable field. A JSON answer has forty fields when your screen needs three. This guide walks both paths slowly: how a key travels through AI Studio without being typed there, how it lands in Vercel, what to do when the credential is a blob, and how to shape an answer\u2014using a real Singapore weather endpoint that I called this morning so the response on tab 5 is what you will actually see.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Read tabs 1 through 3 once. Keep tabs 4 through 6 open while you build. Nothing here is new discipline; it is the same discipline meeting more shapes.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "The three sentences, one more time",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "A public repository is public forever, and Git remembers. A key committed once stays readable in the commit history even after you delete it from the file, and automated scanners read fresh public commits within minutes of a push. Some providers auto-revoke secrets they find on GitHub; most do not. Treat one committed key as one burned key.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": ".gitignore is the fence. It is a plain file at the repository root listing what Git must never track. Your AI Studio scaffold already ships one with the two lines that matter\u2014 .env* (ignore every env file) and !.env.example (except the example, which holds names, not values). Open .gitignore and confirm both lines exist before you write a single real value into .env.local . Tab 3 has a copyable block if yours is missing them.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "The fence does not un-publish. Adding a filename to .gitignore after a commit changes nothing about history. If a real key ever lands in a commit: rotate first, tidy second. Create a new key at the provider, delete the old one there, update the Vercel variable, redeploy\u2014then the leaked string in your history is only noise.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "The ten-second ritual before every push: read the diff and search it for AIza , sb_secret_ , and the first eight characters of every other credential your team holds. Absence is the pass; anything found stops the push.",
+        "links": []
+      }
+    ]
+  },
+  "api_keys": {
+    "title": "autonomousaiagents2026cday2-api-keys \u2014 Sungjong Roh",
+    "blocks": [
+      {
+        "tag": "li",
+        "text": "Autonomous AI Agents &middot; AY 2026 Cohort 3 Singapore Management University Reference &middot; SG Government APIs Building Autonomous AI Agents with out Coding Seven Singapore government data services and the free Google keys, on one card: what each offers, whether it wants a credential, how long signup takes, the exact endpoints, the licences that ride along, and the traps that break first-timers. Every keyless endpoint on this page was called and answered with live data on 14 August 2026; every keyed service was verified against its official documentation the same day. Prof. Sungjong Roh, Ph.D. Overview 01 Real-time SG 02 Datasets 03 SingStat 04 LTA DataMall 05 OneMap 06 MAS 07 URA Space 08 Google &middot; Gemini 09 Google &middot; Data A note from Prof. Roh Dear Team, Your products no longer need to invent their data. Singapore publishes an unusual amount of it, live, free, and machine-readable: the weather over each planning area right now, the number of empty lots in every HDB carpark, the next bus at any stop, twenty years of resale flat prices, the exchange rate the central bank recorded yesterday. This card lists the seven Singapore services worth your time, in the order you should reach for them, and closes with the free Google keys. Three of the seven need no signup at all \u2014tabs 01 to 03 answered live calls this morning with zero credentials. Three more hand over a key the same day you ask. One asks you to plan a day ahead. The card closes with the free Google keys: tab 08 is the Gemini key your product's brain already runs on, and tab 09 is Google's free data APIs\u2014YouTube first among them\u2014every one of them issued without a credit card, and with the one warning about the Google API that is not on that list. For every keyed service, the wiring is exactly what the Keys & JSON field guide teaches: the key goes into a Vercel environment variable, the call happens inside api/ , and the browser only ever talks to your own endpoint. One warning before the buffet. A data API in your product is a dependency you do not control: endpoints migrate, tokens expire, tutorials rot. Each tab below ends with the traps we found this week , checked against the official documentation rather than against three-year-old blog posts. When your code disagrees with a tutorial, trust this card; when this card disagrees with the provider's live documentation, trust the documentation and tell me. Prof. Sungjong Roh, Ph.D. &middot; Building Autonomous AI Agents, AY 2026 Cohort 3 &middot; 14 August 2026 The seven at a glance Service Key? Signup Call from Best first use 01 Real-time SG No None Browser or /api Live weather, PSI, carpark lots, taxi positions on a map. 02 Datasets No None Browser or /api 200k+ HDB resale transactions, filterable, straight into charts. 03 SingStat No None Browser or /api CPI since 1961, GDP, population\u2014macro context for any product. 04 LTA DataMall Yes Instant, key by email /api only Next bus at this stop, updated every 20 seconds. 05 OneMap Yes Instant account, 3-day token Browser-capable; token via /api Postal code to coordinates, routing, 100+ map layers. 06 MAS Yes Same day, guest flow /api only Daily SGD exchange rates and SORA from the central bank. 07 URA Space Yes Same day, plan ahead /api only Private property transactions at caveat level. 08 Google &middot; Gemini Yes Instant, no card /api only The model behind your product's one AI feature. 09 Google &middot; Data Yes Instant, no card /api preferred YouTube stats and comments; books; programmable search. House rules for every service on this card Keys live in Vercel, calls live in /api Env var names for this course: GEMINI_API_KEY , LTA_ACCOUNT_KEY , ONEMAP_TOKEN , MAS_KEY_ID , URA_ACCESS_KEY , YOUTUBE_API_KEY . Sensitive on for anything long-lived. The Keys & JSON guide has the full walk. Route keyless calls through /api anyway It caches (forty classmates look like one polite visitor), it keeps one code shape for keyed and keyless alike, and it survives the day a provider adds a key requirement. Paste real responses into prompts Before asking AI Studio to wire an endpoint, call it once and paste 15\u201325 lines of the real response into the CONTEXT block. Guessed JSON paths are the top cause of \"undefined\" on screen. Respect the meters Rate limits on this card are per key or per IP. Cache in your function for at least the data's refresh interval, and remember the whole class shares the campus IP for the keyless services. Attention &middot; keys never reach GitHub Every key on this card is a credential you asked for by name, and every one of them dies the same way: committed to a public repository. Git history is forever\u2014a key pushed once stays readable in the commit log after you delete it, and scanners read fresh public commits within minutes. Before your first key arrives, open your repository's .gitignore and confirm it contains .env* and !.env.example (the AI Studio scaffold ships both). Before every push, search the diff for AIza , sb_secret_ , and the first characters of each key this card gave you. If a key ever lands in a commit anyway: rotate at the provider first, tidy the repository second. The Keys & JSON field guide walks the whole discipline, .gitignore lines included\u2014read its Attention box before your first signup below. Use it by the rules The terms that ride with the data Free means free of charge, not free of obligations. Five rules cover everything on this card: Attribute your sources. Singapore's open datasets are published under the Singapore Open Data Licence, which asks for acknowledgement; OneMap's terms additionally require crediting OneMap and SLA on any map you render from their tiles or data. The copyable line below in your product's footer or About screen covers the cohort's typical usage.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "The terms you accepted bind the whole team. LTA, URA, OneMap and MAS each show terms of service at signup. The registered member clicked them, and the product inherits them: no reselling raw feeds, no implying the agency endorses your product, no sharing the credential outside the team.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Rate limits are terms of use, not suggestions. Cache at least as long as the data's refresh interval, back off on a 429 rather than retrying harder, and remember the keyless services meter by IP\u2014the whole classroom shares one.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "These feeds are aggregate and public; keep them that way. The moment your product joins government data with personal data about individuals, the PDPA applies to you, not to the agency. And the course rule stands on the model side: free-tier Gemini prompts may be reviewed by humans, so nothing personal ever goes in.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Google keys carry per-API terms. The Gemini free tier's data-use terms are on tab 08; YouTube data comes under the YouTube API Services terms (display it faithfully, keep the required attribution, respect the quota rather than engineering around it). One key per project, restricted to what it needs, is both good hygiene and what the terms expect.",
+        "links": []
+      },
+      {
+        "tag": "li",
+        "text": "Read the licence when you leave the classroom. A weekend project and a commercial launch carry different obligations. Before your product takes payment, reread each provider's terms with that in mind\u2014LTA's terms permit commercial use, others want a closer read.",
+        "links": []
+      },
+      {
+        "tag": "p",
+        "text": "Data sources: [name the datasets you use], accessed via data.gov.sg, SingStat, LTA DataMall, OneMap (\u00a9 Singapore Land Authority), URA and MAS, and made available under the Singapore Open Data Licence v1.0 and the respective providers' API terms of service. Which tab first? If your product has a map or an address: 01 and 05. Property or housing: 02 and 07. Money, prices, affordability: 03 and 06. Anything that moves around Singapore: 04. If you just want the fastest possible win today, tab 01's weather endpoint returns live JSON to a plain browser fetch with no signup, and the Keys & JSON guide's worked example wires exactly that endpoint into a widget. Your product's brain runs on tab 08 either way, and if your market research lives on YouTube, tab 09 is your second key of the day.",
+        "links": []
+      }
+    ]
+  }
+}
