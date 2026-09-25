@@ -66,32 +66,32 @@ export const Day1LectureView: React.FC<Day1LectureViewProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-white text-zinc-900 flex flex-col font-sans">
       {/* Top Navigation & Breadcrumb Header */}
-      <header className="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-40">
+      <header className="bg-white border-b border-zinc-200 px-4 py-3 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={onNavigateHome}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer border border-slate-700 shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium transition cursor-pointer border border-zinc-200 shadow-2xs"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-3.5 h-3.5 text-zinc-600" />
               <span>Course Main</span>
             </button>
 
-            <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+            <div className="h-4 w-px bg-zinc-200 hidden sm:block" />
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">
+                <span className="text-xs text-indigo-600 font-semibold uppercase tracking-wider">
                   Day 1 Lecture
                 </span>
-                <span className="text-slate-600 hidden sm:inline">&middot;</span>
-                <h1 className="text-sm font-bold text-white truncate max-w-[280px] sm:max-w-md">
+                <span className="text-zinc-400 hidden sm:inline">&middot;</span>
+                <h1 className="text-sm font-bold text-zinc-900 truncate max-w-[280px] sm:max-w-md">
                   Full End-to-End Building with AI Agents
                 </h1>
               </div>
-              <p className="text-[11px] text-slate-400 hidden md:block">
+              <p className="text-[11px] text-zinc-500 hidden md:block">
                 Singapore Management University &middot; Prof. Sungjong Roh
               </p>
             </div>
@@ -102,16 +102,16 @@ export const Day1LectureView: React.FC<Day1LectureViewProps> = ({
             {/* Direct Link to other guides */}
             <button
               onClick={() => onNavigateSubpage('/autonomousaiagents2026cday2-sg-apis')}
-              className="text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 transition hidden lg:inline-flex items-center gap-1.5 cursor-pointer"
+              className="text-xs text-zinc-700 hover:text-zinc-900 px-2.5 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition hidden lg:inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <Layers className="w-3.5 h-3.5 text-emerald-600" />
               <span>Keys &amp; JSON Guide</span>
             </button>
 
             <button
               onClick={handleReloadDeck}
               title="Reset slide deck"
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition cursor-pointer"
+              className="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded transition cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -120,16 +120,16 @@ export const Day1LectureView: React.FC<Day1LectureViewProps> = ({
               href="/lecture-deck.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded transition cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-zinc-700 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 rounded transition cursor-pointer"
               title="Open presentation standalone in new tab"
             >
               <span>Full Tab</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
             </a>
 
             <button
               onClick={handleToggleFullscreen}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded font-medium transition cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded font-medium transition cursor-pointer shadow-xs"
               title="Toggle fullscreen mode"
             >
               {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -140,46 +140,46 @@ export const Day1LectureView: React.FC<Day1LectureViewProps> = ({
       </header>
 
       {/* Slide Deck Container (Interactive 33-slide presentation) */}
-      <main className="flex-1 w-full flex flex-col bg-slate-950 relative">
-        <div className="w-full flex-1 min-h-[750px] lg:min-h-[850px] relative">
+      <main className="flex-1 w-full flex flex-col bg-white relative">
+        <div className="w-full flex-1 min-h-[750px] lg:min-h-[850px] relative bg-white">
           <iframe
             ref={iframeRef}
             src="/lecture-deck.html"
             title="Day 1 · Full End-to-End Building with AI Agents Lecture Slides"
-            className="w-full h-full absolute inset-0 border-0 bg-slate-900"
+            className="w-full h-full absolute inset-0 border-0 bg-white"
             allow="fullscreen"
           />
         </div>
 
         {/* Slide Table of Contents / Quick Jump Drawer */}
-        <div className="bg-slate-900/90 border-t border-slate-800 px-4 py-3">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div className="bg-zinc-50 border-t border-zinc-200 px-4 py-3">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-600">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="font-medium text-slate-300">
+              <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+              <span className="font-medium text-zinc-800">
                 33 Interactive Presentation Slides with D3 Diagrams &amp; Architecture Flow
               </span>
             </div>
 
-            <div className="flex items-center gap-4 text-[11px]">
-              <span>Tip: Use <kbd className="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded border border-slate-700">←</kbd> <kbd className="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded border border-slate-700">→</kbd> or <kbd className="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded border border-slate-700">Space</kbd> to navigate</span>
+            <div className="flex items-center gap-4 text-[11px] text-zinc-500">
+              <span>Tip: Use <kbd className="bg-white text-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 shadow-2xs font-mono">←</kbd> <kbd className="bg-white text-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 shadow-2xs font-mono">→</kbd> or <kbd className="bg-white text-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 shadow-2xs font-mono">Space</kbd> to navigate</span>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800/80 py-4 px-6 text-center text-xs text-slate-500">
+      <footer className="bg-zinc-50 border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Copyright &copy; {new Date().getFullYear()} Sungjong Roh &middot; Singapore Management University</span>
           <div className="flex items-center gap-4">
-            <button onClick={onNavigateHome} className="hover:text-slate-300 underline cursor-pointer">
+            <button onClick={onNavigateHome} className="hover:text-zinc-800 underline cursor-pointer">
               Course Home
             </button>
-            <a href="https://www.linkedin.com/in/talktoroh/" target="_blank" rel="noreferrer" className="hover:text-slate-300">
+            <a href="https://www.linkedin.com/in/talktoroh/" target="_blank" rel="noreferrer" className="hover:text-zinc-800">
               LinkedIn
             </a>
-            <a href="mailto:sroh@smu.edu.sg" className="hover:text-slate-300">
+            <a href="mailto:sroh@smu.edu.sg" className="hover:text-zinc-800">
               Email
             </a>
           </div>
